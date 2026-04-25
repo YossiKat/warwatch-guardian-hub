@@ -1,0 +1,39 @@
+◇ injected env (6) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+[12:50:10] 🔐 Admin token (save to .env): ADMIN_TOKEN=3f8a62c17aed59732212e912252ea3ee
+[12:50:10] ══════════════════════════════════════
+[12:50:10] 🚀 EWS Mission Control v3 — port 3000
+[12:50:10] 🖥️  http://localhost:3000
+[12:50:10] 📱 http://10.0.0.2:3000
+[12:50:10] 🔧 http://localhost:3000/diag.html
+[12:50:10] 🤖 AI:  ✅ מחובר
+[12:50:10] ✈️  TG:  ✅ מחובר
+[12:50:10] ══════════════════════════════════════
+[12:50:10] ℹ️  Telegram User API לא מוגדר (.env: TG_API_ID, TG_API_HASH, TG_PHONE)
+[12:50:10] LICENSE: EWS-YOSSIKAT-PERPETUAL-2025 [PERPETUAL] VALID
+[12:50:10]   Owner: Yossi WarZone Control | Features: 10
+[12:50:10] 
+📱 בדיקת בוטים:
+[12:50:10]   ✅ 🔴 יוסי חמל אדום 🔴 → @yossi_red_bot
+[12:50:10]   ✅ 💰 יוסי חמל כלכלה 💰 → @YOSSI_GOLD_BOT
+[12:50:10]   ✅ 🔵 בוט כחול 🔵 → @yossi_blue_bot
+[12:50:10] 
+[12:50:10]   📋 להוסיף בוטים לקנאלים:
+[12:50:10]   → פתח @kavhamilhama → Admins → הוסף @yossi_red_bot
+[12:50:10]   → פתח @kavhamilhama → Admins → הוסף @YOSSI_GOLD_BOT
+[12:50:10]   → פתח @kavhamilhama → Admins → הוסף @yossi_blue_bot
+[12:50:10]   (הבוט יקבל הודעות רק מקנאלים שהוסף אליהם)
+[12:50:10] 
+[12:50:11] RSS: +85 ידיעות
+[12:50:11] ✈️  Telegram @yossi_red_bot פעיל
+[12:50:11] ✅ כל המנגנונים פעילים
+[12:50:15] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:50:20] 📡 Channels: 15 resolved, 24 configured
+[12:50:20] 📡 הבוט מקבל הודעות מכל קנאל שהוא חבר בו
+[12:50:20] 📡 כדי לקבל הודעות: הוסף את הבוט כ-Admin בכל קנאל
+[12:50:22] 🚑 איחוד הצלה: United Hatzalah First Responder Describes Heroic Efforts in 
+[12:50:22] 🚑 איחוד הצלה: Finding a Place To Begin &#8211; Personal Account from a Fir
+[12:50:23] 🤖 AI: כוננות 3/5 — מצב שגרה עם מתיחות בינוניות; דיווחים על אירועים אל
+[12:50:42] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:51:12] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:51:42] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:51:46] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתיחויות בינוניות; פעילות אויב מתונה 
