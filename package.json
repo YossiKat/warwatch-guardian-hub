@@ -1,16 +1,6 @@
 {
-  "name": "ews",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "dotenv": "^17.4.2"
-  }
+  "name": "warwatch-guardian-hub",
+  "version": "7.0.0",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" }
 }

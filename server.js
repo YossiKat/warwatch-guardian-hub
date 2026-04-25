@@ -1205,6 +1205,7 @@ async function scanSatellites(){
 }
 
 // Satellite status endpoint
+const _origHandler = handleRequest;
 
 // ═══════════════════════════════════════════════════════════════
 // AI ANALYSIS — ניתוח כולל כל 90 שניות
