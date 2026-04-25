@@ -1,39 +1,84 @@
-◇ injected env (6) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-[12:50:10] 🔐 Admin token (save to .env): ADMIN_TOKEN=3f8a62c17aed59732212e912252ea3ee
-[12:50:10] ══════════════════════════════════════
-[12:50:10] 🚀 EWS Mission Control v3 — port 3000
-[12:50:10] 🖥️  http://localhost:3000
-[12:50:10] 📱 http://10.0.0.2:3000
-[12:50:10] 🔧 http://localhost:3000/diag.html
-[12:50:10] 🤖 AI:  ✅ מחובר
-[12:50:10] ✈️  TG:  ✅ מחובר
-[12:50:10] ══════════════════════════════════════
-[12:50:10] ℹ️  Telegram User API לא מוגדר (.env: TG_API_ID, TG_API_HASH, TG_PHONE)
-[12:50:10] LICENSE: EWS-YOSSIKAT-PERPETUAL-2025 [PERPETUAL] VALID
-[12:50:10]   Owner: Yossi WarZone Control | Features: 10
-[12:50:10] 
+◇ injected env (6) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+[12:51:53] 🔐 Admin token (save to .env): ADMIN_TOKEN=dd9bfc97091fa36b027e9d952c2069a6
+[12:51:53] ══════════════════════════════════════
+[12:51:53] 🚀 EWS Mission Control v3 — port 3000
+[12:51:53] 🖥️  http://localhost:3000
+[12:51:53] 📱 http://10.0.0.2:3000
+[12:51:53] 🔧 http://localhost:3000/diag.html
+[12:51:53] 🤖 AI:  ✅ מחובר
+[12:51:53] ✈️  TG:  ✅ מחובר
+[12:51:53] ══════════════════════════════════════
+[12:51:53] ℹ️  Telegram User API לא מוגדר (.env: TG_API_ID, TG_API_HASH, TG_PHONE)
+[12:51:53] LICENSE: EWS-YOSSIKAT-PERPETUAL-2025 [PERPETUAL] VALID
+[12:51:53]   Owner: Yossi WarZone Control | Features: 10
+[12:51:53] 
 📱 בדיקת בוטים:
-[12:50:10]   ✅ 🔴 יוסי חמל אדום 🔴 → @yossi_red_bot
-[12:50:10]   ✅ 💰 יוסי חמל כלכלה 💰 → @YOSSI_GOLD_BOT
-[12:50:10]   ✅ 🔵 בוט כחול 🔵 → @yossi_blue_bot
-[12:50:10] 
-[12:50:10]   📋 להוסיף בוטים לקנאלים:
-[12:50:10]   → פתח @kavhamilhama → Admins → הוסף @yossi_red_bot
-[12:50:10]   → פתח @kavhamilhama → Admins → הוסף @YOSSI_GOLD_BOT
-[12:50:10]   → פתח @kavhamilhama → Admins → הוסף @yossi_blue_bot
-[12:50:10]   (הבוט יקבל הודעות רק מקנאלים שהוסף אליהם)
-[12:50:10] 
-[12:50:11] RSS: +85 ידיעות
-[12:50:11] ✈️  Telegram @yossi_red_bot פעיל
-[12:50:11] ✅ כל המנגנונים פעילים
-[12:50:15] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
-[12:50:20] 📡 Channels: 15 resolved, 24 configured
-[12:50:20] 📡 הבוט מקבל הודעות מכל קנאל שהוא חבר בו
-[12:50:20] 📡 כדי לקבל הודעות: הוסף את הבוט כ-Admin בכל קנאל
-[12:50:22] 🚑 איחוד הצלה: United Hatzalah First Responder Describes Heroic Efforts in 
-[12:50:22] 🚑 איחוד הצלה: Finding a Place To Begin &#8211; Personal Account from a Fir
-[12:50:23] 🤖 AI: כוננות 3/5 — מצב שגרה עם מתיחות בינוניות; דיווחים על אירועים אל
-[12:50:42] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
-[12:51:12] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
-[12:51:42] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
-[12:51:46] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתיחויות בינוניות; פעילות אויב מתונה 
+[12:51:53]   ✅ 🔴 יוסי חמל אדום 🔴 → @yossi_red_bot
+[12:51:53]   ✅ 💰 יוסי חמל כלכלה 💰 → @YOSSI_GOLD_BOT
+[12:51:53]   ✅ 🔵 בוט כחול 🔵 → @yossi_blue_bot
+[12:51:53] 
+[12:51:53]   📋 להוסיף בוטים לקנאלים:
+[12:51:53]   → פתח @kavhamilhama → Admins → הוסף @yossi_red_bot
+[12:51:53]   → פתח @kavhamilhama → Admins → הוסף @YOSSI_GOLD_BOT
+[12:51:53]   → פתח @kavhamilhama → Admins → הוסף @yossi_blue_bot
+[12:51:53]   (הבוט יקבל הודעות רק מקנאלים שהוסף אליהם)
+[12:51:53] 
+[12:51:54] RSS: +85 ידיעות
+[12:51:54] ✈️  Telegram @yossi_red_bot פעיל
+[12:51:54] ✅ כל המנגנונים פעילים
+[12:51:58] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:52:03] 📡 Channels: 15 resolved, 24 configured
+[12:52:03] 📡 הבוט מקבל הודעות מכל קנאל שהוא חבר בו
+[12:52:03] 📡 כדי לקבל הודעות: הוסף את הבוט כ-Admin בכל קנאל
+[12:52:04] 🤖 AI: כוננות 3/5 — שגרה מוגברת - איום איראני פעיל, תנועות כלי טיס, אי
+[12:52:04] 🚑 איחוד הצלה: United Hatzalah First Responder Describes Heroic Efforts in 
+[12:52:04] 🚑 איחוד הצלה: Finding a Place To Begin &#8211; Personal Account from a Fir
+[12:52:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:52:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:53:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:53:31] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתחים בינלאומיים משמעותיים; הצעות שלו
+[12:53:54] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:54:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:54:54] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:54:59] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתחים בינלאומיים. דיווחים על אירועים 
+[12:55:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:55:54] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:56:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:56:29] 🤖 AI: כוננות 3/5 — מצב שגרה מוכרז אך עם מתחים אזוריים גבוהים; פעילות 
+[12:56:54] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:57:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:57:54] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:58:00] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתחים בינלאומיים משמעותיים; איראן מגב
+[12:58:24] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:58:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:59:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[12:59:30] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתחים בינלאומיים מתגברים. פעילות אירא
+[12:59:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:00:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:00:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:01:00] 🤖 AI: כוננות 3/5 — מצב שגרה מדווח עם עלייה בפעילות הטרור המקומית והתג
+[13:01:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:01:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:02:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:02:31] 🤖 AI: כוננות 3/5 — מצב שגרה עם אזהרות מתמשכות; איומים איראניים וחזבol
+[13:02:56] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:03:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:03:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:04:00] 🤖 AI: כוננות 3/5 — מצב שגרתי עם טביעת קול של איומים מתמשכים: דיווחים 
+[13:04:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:04:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:05:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:05:29] 🤖 AI: כוננות 3/5 — מצב שגרה עם מתיחות בינלאומיות; דיווחים על אירועי א
+[13:05:56] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:06:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:06:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:07:00] 🤖 AI: כוננות 3/5 — מצב שגרה עם מתיחות בינלאומיות; איראן מגיבה להצעות 
+[13:07:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:07:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:08:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:08:29] 🤖 AI: כוננות 3/5 — פעילות אזורית מתגברת עם איומים מרובים. הגבול הצפונ
+[13:08:56] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:09:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:09:55] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[13:10:00] 🤖 AI: כוננות 3/5 — מצב שגרתי עם מתיחות בינלאומיות ותקריות אלימות מקומ
+[13:10:25] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
