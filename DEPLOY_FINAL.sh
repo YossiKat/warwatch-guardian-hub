@@ -44,3 +44,8 @@ echo "  📱  iPad:   http://10.0.0.2:3000/warwatch.html"
 [ -n "$URL" ] && echo "  🌐  חברים:  $URL/warwatch.html"
 echo "  💙  Lovable: https://https-late-geese-train-loca-lt.lovable.app"
 echo "════════════════════════════════════════"
+
+echo "📱 מפעיל TG User..."
+pkill -f "tg_user" 2>/dev/null; sleep 1
+nohup node ~/Desktop/ews/tg_user.js >> ~/Desktop/ews/tg_user.log 2>&1 &
+echo "✅ TG User פעיל → port 3001"
