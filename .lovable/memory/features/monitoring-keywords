@@ -1,0 +1,94 @@
+---
+name: Geopolitical & Military Monitoring Keywords
+description: Full trilingual keyword list (HE/AR/EN) used across telegram-poll, intel-gather, news-flash, and situation-analysis for classification, severity, tagging, scoring, and prediction — 12 categories
+type: feature
+---
+
+## Categories & Keywords
+
+### LAUNCH_DETECTION (severity: critical) — NEW
+- HE: זיהוי שיגור, התרעת שיגור, שיגור מאיראן, שיגור טילים, שיגור בליסטי, העברת טילים, טעינת משגרים, כוננות שיגור, התראה לפני שיגור, גילוי מוקדם, לוויין ביטחוני, מכ"ם, חץ, כיפת ברזל, שרביט קסמים, דיוויד סלינג, מערך הגנה אווירית, יירוט בליסטי, טיל שיוט, טיל קרקע-קרקע
+- AR: إطلاق صواريخ, إطلاق باليستي, رصد إطلاق, تحميل منصات, جاهزية إطلاق
+- EN: Launch detection, Missile launch, Ballistic launch, Launch warning, Early warning, Satellite detection, Radar detection, Missile loading, Launcher preparation, Launch readiness, Iron Dome, Arrow, David Sling, Air defense, Cruise missile, Ground-to-ground
+
+### LEADER_STATEMENTS (severity: high) — NEW
+- HE: הצהרה, נאום, הודעה רשמית, מסיבת עיתונאים, הכריז, הזהיר, איים, חמינאי, פזשכיאן, נסראללה, סינוואר, הנייה, ראש ממשלה, נתניהו, שר הביטחון, הרמטכ"ל, דובר צה"ל, מנהיג עליון, משמרות המהפכה, חיל קודס, IRGC, איום ישיר, גמול, נקמה, מתקפת תגמול, תגובה קשה
+- AR: بيان, تصريح, خطاب, مؤتمر صحفي, أعلن, حذر, هدد, خامنئي, بزشكيان, نصر الله, حسن نصرالله, السنوار, هنية, الحرس الثوري, فيلق القدس, المرشد الأعلى, تهديد مباشر, انتقام, رد قاسي, ضربة انتقامية
+- EN: Statement, Declaration, Speech, Press conference, Announced, Warned, Threatened, Khamenei, Pezeshkian, Nasrallah, Sinwar, Haniyeh, Supreme leader, Revolutionary guard, Quds force, IRGC, Direct threat, Retaliation, Revenge, Retaliatory strike, Harsh response, World leader, Prime minister, President, Defense minister, Foreign minister, Macron, Biden, Trump, Scholz, Starmer, Erdogan
+
+### IMMEDIATE_RED_ALERTS / HOME_FRONT (severity: critical)
+- HE: פיצוץ, שיגור, צבע אדום, נפילה, יירוט, חדירה, חילופי אש, סיכול, תקיפה, חלל, חדירת כטב"ם, פגיעה ישירה, התרעה, כניסה למרחב מוגן, מסר אישי
+- AR: انفجار, إطلاق, صواريخ, غارة جوية, اشتباكات, تسلل, اعتراض
+- EN: Explosion, Launch, Missile, Air strike, Interception, Firefight, Infiltration
+
+### FIELD_UPDATES (severity: warning)
+- HE: שחרור, חזרה לשגרה, הנחיות, במרחב, סיום אירוע, דיווח ראשוני
+
+### EMERGENCY_&_MEDICAL_SCENE (severity: critical/high)
+- HE: מצב חירום, פצועים, הרוגים, נפגעים, אנוש, קשה, בינוני, קל, פינוי רפואי, מסוק חילוץ, תאג"ד, מד"א, אירוע רב נפגעים, אר"ן, חסימת עורקים, טיפול תחת אש
+- AR: حالة طوارئ, جرحى, قتلى, إصابات, خطيرة, إخلاء طبي, مروحية إنقاذ, حادث متعدد الإصابات
+- EN: Emergency, Casualties, Wounded, Fatalities, Critical condition, MEDEVAC, Rescue helicopter, Mass casualty incident, Triage, Field hospital
+
+### MILITARY_MOVEMENTS (severity: high)
+- HE: ריכוז כוחות, תנועת שיירות, גיוס מילואים, כוננות שיא, פריסת סוללות, הקפצה, שיירה, מובילים
+- AR: تحركات عسكرية, استنفار, تعزيزات, قافلة, حشد, آليات
+- EN: Troop movement, Convoy, Mobilization, High alert, Deployment, Armored vehicles
+
+### STRATEGIC_WEAPONS (severity: high)
+- HE: גרעין, טילים בליסטיים, צנטריפוגות, פרויקט הדיוק, כטב"ם, מל"ט מתאבד, צוללת, נושאת מטוסים
+- AR: نووي, صواريخ باليستية, طائرة بدون طيار, مسيرة, غواصة
+- EN: Nuclear, Ballistic, UAV, Drone, Enrichment, S-400, Hypersonic, Aircraft carrier
+
+### INFRASTRUCTURE_CYBER (severity: warning)
+- HE: הפסקת חשמל, קריסת רשת, שיבושי GPS, לוחמת סייבר, מתקפת מנע, ניתוק, חושך
+- AR: انقطاع التيار الكهربائي, هجوم سيبراني, تشويش, تعطل
+- EN: Blackout, Cyber attack, GPS jamming, Infrastructure failure
+
+### GEOPOLITICAL (severity: medium)
+- HE: איראן, הבית הלבן, טראמפ, ביידן, סנקציות, הסכם, מודיעין
+- EN/AR: (covered via existing geopolitical keywords)
+
+### FINANCE_MACRO (severity: medium)
+- HE: נפט, דולר, ריבית, אינפלציה, בורסה, נאסד"ק, מחירי הנפט, משבר אנרגיה, שרשרת אספקה
+- AR: أسعار النفط, أزمة طاقة
+- EN: Oil prices, Energy crisis
+
+### GLOBAL_DYNAMICS (severity: medium)
+- HE: סחר חוץ, נתיבי שיט, ברית אסטרטגית, וטו, מועצת הביטחון
+- AR: سلاسل التوريد, تحالف استراتيجي, مجلس الأمن
+- EN: Supply chain, Strategic alliance, UN Security Council, Sanctions
+
+### GEOPOLITICAL_CHOKEPOINTS (severity: warning)
+- HE: מיצרי הורמוז, באב אל מנדב, חסימה, תפיסת ספינה, תעלת סואץ, מיצר טאיוואן
+- AR: مضيق هرمز, باب المندب, احتجاز سفينة, قناة السويس
+- EN: Strait of Hormuz, Bab el-Mandeb, Maritime seizure, Suez Canal, Taiwan Strait, Blockade
+
+### POLITICAL_STABILITY (severity: warning)
+- HE: הפיכה, מרד, הכרזת מלחמה, נאום דרמטי, מצב חירום, סגר, עוצר, חוסר יציבות
+- AR: انقلاب, حالة الطوارئ, خطاب هام, مظاهرات, حظر تجول
+- EN: Coup, State of emergency, Declaration of war, Civil unrest, Martial law
+
+## Implementation Locations
+- `supabase/functions/telegram-poll/index.ts` — detectSeverity(), extractTags(), computeEventScore() — incl. launch detection & leader statements scoring
+- `supabase/functions/intel-gather/index.ts` — categoryKeywords (15 categories incl. launch_detection, leader_statements)
+- `supabase/functions/news-flash/index.ts` — RELEVANCE_KEYWORDS (HE/AR/EN), classifySituation(), extractSeverity()
+- `supabase/functions/situation-analysis/index.ts` — AI system prompt includes all keywords for prediction
+- `src/components/war-room/TacticalMapView.tsx` — classifyEventIcon() (12 types)
+
+## Map Icons by Category
+| Icon | Category |
+|------|----------|
+| 🚨 | Home Front / Oref critical |
+| 🟠 | Field updates / status |
+| 🚔 | Police / Terror |
+| 🔥 | Fire |
+| 🚑 | MDA / Medical / Emergency |
+| 💥 | Explosion / Missile |
+| ☢️ | Strategic Weapons |
+| 💻 | Cyber / Infrastructure |
+| ⚓ | Maritime Chokepoints |
+| 🪖 | Military Movements |
+| 🔵 | Geopolitical |
+| 💰 | Finance / Macro |
+| 🚀 | Launch Detection |
+| 📢 | Leader Statements |

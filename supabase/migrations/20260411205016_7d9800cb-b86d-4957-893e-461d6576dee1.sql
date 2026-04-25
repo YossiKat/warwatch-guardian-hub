@@ -1,0 +1,1 @@
+INSERT INTO telegram_bot_state (id, bot_name, update_offset) VALUES (4, 'warroom_control_v2', 0), (5, 'gold_bot', 0), (6, 'blue_bot_v2', 0) ON CONFLICT (id) DO NOTHING;

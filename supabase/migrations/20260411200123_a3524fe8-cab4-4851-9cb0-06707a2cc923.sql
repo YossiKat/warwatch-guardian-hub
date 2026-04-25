@@ -1,0 +1,1 @@
+ALTER TABLE public.telegram_messages ADD COLUMN bot_name text NOT NULL DEFAULT 'warroom_control';
