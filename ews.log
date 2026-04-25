@@ -1,38 +1,42 @@
-◇ injected env (9) from .env // tip: ⌘ override existing { override: true }
-[15:12:21] 🔐 Admin token (save to .env): ADMIN_TOKEN=ad87b28762b8dadd87f73b7d717daebe
-[15:12:21] ══════════════════════════════════════
-[15:12:21] 🚀 EWS Mission Control v3 — port 3000
-[15:12:21] 🖥️  http://localhost:3000
-[15:12:21] 📱 http://169.254.207.250:3000
-[15:12:21] 🔧 http://localhost:3000/diag.html
-[15:12:21] 🤖 AI:  ✅ מחובר
-[15:12:21] ✈️  TG:  ✅ מחובר
-[15:12:21] ══════════════════════════════════════
-[15:12:21] ⚠️  Telegram User API שגיאה: StringSession is not a constructor
-[15:12:21] 💡 התקן: cd ~/Desktop/ews && npm install telegram
-[15:12:21] LICENSE: EWS-YOSSIKAT-PERPETUAL-2025 [PERPETUAL] VALID
-[15:12:21]   Owner: Yossi WarZone Control | Features: 10
-[15:12:21] 
+◇ injected env (9) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+[15:13:50] 🔐 Admin token (save to .env): ADMIN_TOKEN=74f400b4c9872a29c991c4dcf633c555
+[15:13:50] ══════════════════════════════════════
+[15:13:50] 🚀 EWS Mission Control v3 — port 3000
+[15:13:50] 🖥️  http://localhost:3000
+[15:13:50] 📱 http://169.254.207.250:3000
+[15:13:50] 🔧 http://localhost:3000/diag.html
+[15:13:50] 🤖 AI:  ✅ מחובר
+[15:13:50] ✈️  TG:  ✅ מחובר
+[15:13:50] ══════════════════════════════════════
+[15:13:50] ⚠️  Telegram User API שגיאה: StringSession is not a constructor
+[15:13:50] 💡 התקן: cd ~/Desktop/ews && npm install telegram
+[15:13:50] LICENSE: EWS-YOSSIKAT-PERPETUAL-2025 [PERPETUAL] VALID
+[15:13:50]   Owner: Yossi WarZone Control | Features: 10
+[15:13:50] 
 📱 בדיקת בוטים:
-[15:12:22]   ✅ 🔴 יוסי חמל אדום 🔴 → @yossi_red_bot
-[15:12:22]   ✅ 💰 יוסי חמל כלכלה 💰 → @YOSSI_GOLD_BOT
-[15:12:22]   ✅ 🔵 בוט כחול 🔵 → @yossi_blue_bot
-[15:12:22] 
-[15:12:22]   📋 להוסיף בוטים לקנאלים:
-[15:12:22]   → פתח @kavhamilhama → Admins → הוסף @yossi_red_bot
-[15:12:22]   → פתח @kavhamilhama → Admins → הוסף @YOSSI_GOLD_BOT
-[15:12:22]   → פתח @kavhamilhama → Admins → הוסף @yossi_blue_bot
-[15:12:22]   (הבוט יקבל הודעות רק מקנאלים שהוסף אליהם)
-[15:12:22] 
-[15:12:23] RSS: +89 ידיעות
-[15:12:23] ✈️  Telegram @yossi_red_bot פעיל
-[15:12:23] ✅ כל המנגנונים פעילים
-[15:12:27] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
-[15:12:29] ⚠️  AI: Unexpected end of JSON input
-[15:12:31] 📡 Channels: 15 resolved, 24 configured
-[15:12:31] 📡 הבוט מקבל הודעות מכל קנאל שהוא חבר בו
-[15:12:31] 📡 כדי לקבל הודעות: הוסף את הבוט כ-Admin בכל קנאל
-[15:12:33] 🚑 איחוד הצלה: United Hatzalah First Responder Describes Heroic Efforts in 
-[15:12:33] 🚑 איחוד הצלה: Finding a Place To Begin &#8211; Personal Account from a Fir
-[15:12:53] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
-[15:13:23] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[15:13:50]   ✅ 🔴 יוסי חמל אדום 🔴 → @yossi_red_bot
+[15:13:50]   ✅ 💰 יוסי חמל כלכלה 💰 → @YOSSI_GOLD_BOT
+[15:13:50]   ✅ 🔵 בוט כחול 🔵 → @yossi_blue_bot
+[15:13:50] 
+[15:13:50]   📋 להוסיף בוטים לקנאלים:
+[15:13:50]   → פתח @kavhamilhama → Admins → הוסף @yossi_red_bot
+[15:13:50]   → פתח @kavhamilhama → Admins → הוסף @YOSSI_GOLD_BOT
+[15:13:50]   → פתח @kavhamilhama → Admins → הוסף @yossi_blue_bot
+[15:13:50]   (הבוט יקבל הודעות רק מקנאלים שהוסף אליהם)
+[15:13:50] 
+[15:13:51] RSS: +89 ידיעות
+[15:13:51] ✈️  Telegram @yossi_red_bot פעיל
+[15:13:51] ✅ כל המנגנונים פעילים
+[15:13:56] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[15:13:57] ⚠️  AI: Unexpected end of JSON input
+[15:14:00] 📡 Channels: 15 resolved, 24 configured
+[15:14:00] 📡 הבוט מקבל הודעות מכל קנאל שהוא חבר בו
+[15:14:00] 📡 כדי לקבל הודעות: הוסף את הבוט כ-Admin בכל קנאל
+[15:14:02] 🚑 איחוד הצלה: United Hatzalah First Responder Describes Heroic Efforts in 
+[15:14:02] 🚑 איחוד הצלה: Finding a Place To Begin &#8211; Personal Account from a Fir
+[15:14:21] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[15:14:52] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[15:15:23] ⚠️  AI: Unexpected end of JSON input
+[15:15:23] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[15:15:52] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
+[15:16:23] ⚠️  חמל poll: getaddrinfo ENOTFOUND www.hamal.co.il
