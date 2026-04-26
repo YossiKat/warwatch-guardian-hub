@@ -1,39 +1,1817 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#0a0f1a" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Yossi WarZone Control</title>
-    <meta name="description" content="War Status Hub provides real-time situational awareness and alerts for critical events globally.">
-    <meta name="author" content="Lovable" />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>EWS | חדר מצב לאומי</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ══ RESET & BASE ══════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#000305;--panel:rgba(1,10,20,.97);--border:rgba(0,229,255,.13);
+  --accent:#00e5ff;--green:#00ff9d;--lime:#b2ff59;--yellow:#ffea00;
+  --orange:#ff6d00;--red:#ff1744;--crit:#ff0050;
+  --text:#7ab4c8;--dim:#1a3848;
+  --orb:'Orbitron',sans-serif;--mono:'Share Tech Mono',monospace;
+}
+html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Heebo',sans-serif;}
 
-    <!-- TODO: Update og:title to match your application name -->
-    
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3a505197-98c7-4e44-9413-c018e3aec667/id-preview-2170a4b0--c2dacccd-7601-4cae-a948-4b56b3bc3e2f.lovable.app-1775016644100.png">
+/* GRID BG */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,229,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,.012) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0;}
+/* SCANLINES */
+body::after{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 4px);
+  pointer-events:none;z-index:9998;}
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3a505197-98c7-4e44-9413-c018e3aec667/id-preview-2170a4b0--c2dacccd-7601-4cae-a948-4b56b3bc3e2f.lovable.app-1775016644100.png">
-  
-  
-  
-  
-  <meta property="og:title" content="Yossi WarZone Control">
-  <meta name="twitter:title" content="Yossi WarZone Control">
-  <meta property="og:description" content="War Status Hub provides real-time situational awareness and alerts for critical events globally.">
-  <meta name="twitter:description" content="War Status Hub provides real-time situational awareness and alerts for critical events globally.">
+/* ══ LAYOUT ════════════════════════════════════════════════════ */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative;z-index:1;}
+
+/* ── HEADER ── */
+header{
+  background:rgba(0,3,8,.98);border-bottom:1px solid var(--border);
+  padding:10px 14px;flex-shrink:0;position:sticky;top:0;z-index:600;
+}
+.h-row1{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.h-logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.radar-anim{position:relative;width:38px;height:38px;flex-shrink:0;}
+.ra-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,255,.25);}
+.ra-sweep{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent,rgba(0,229,255,.75) 40deg,transparent 40deg);
+  animation:sw 2.5s linear infinite;}
+@keyframes sw{to{transform:rotate(360deg);}}
+.ra-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:5px;height:5px;background:var(--accent);border-radius:50%;
+  box-shadow:0 0 10px var(--accent);}
+.h-titles h1{font-family:var(--orb);font-size:13px;font-weight:900;color:#fff;letter-spacing:.5px;}
+.h-sub{font-size:7px;color:var(--accent);font-family:var(--mono);letter-spacing:2px;margin-top:2px;}
+.h-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.hbtn{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);
+  border-radius:5px;color:var(--accent);padding:7px 11px;font-size:10px;
+  cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap;
+  -webkit-appearance:none;min-height:36px;}
+.hbtn.alarm{background:rgba(255,0,80,.1);border-color:rgba(255,0,80,.3);color:var(--crit);}
+.hbtn.on{background:rgba(0,255,157,.08);border-color:var(--green);color:var(--green);}
+.hbtn.cfg{background:rgba(255,214,0,.08);border-color:rgba(255,214,0,.3);color:#ffd600;font-size:14px;padding:7px 10px;}
+
+/* STATUS ROW */
+.h-row2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.spill{display:flex;align-items:center;gap:4px;font-size:8px;
+  font-family:var(--mono);padding:3px 7px;border-radius:7px;
+  border:1px solid rgba(255,255,255,.06);white-space:nowrap;}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:#1a3848;}
+.sp-dot.ok{background:var(--green);box-shadow:0 0 5px var(--green);}
+.sp-dot.err{background:var(--red);}
+.sp-dot.try{background:var(--yellow);animation:blk .7s ease-in-out infinite;}
+@keyframes blk{0%,100%{opacity:1}50%{opacity:.2}}
+.hclock{font-family:var(--orb);font-size:15px;color:var(--accent);
+  letter-spacing:1.5px;margin-right:auto;}
+.next-lbl{font-size:8px;color:var(--dim);font-family:var(--mono);}
+
+/* READINESS BAR */
+.ready-row{display:flex;align-items:center;gap:7px;margin-top:6px;}
+.rbar{width:11px;height:18px;border-radius:2px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);
+  transition:all .45s;}
+.rbar.l1{background:var(--green);box-shadow:0 0 5px var(--green);}
+.rbar.l2{background:var(--lime);box-shadow:0 0 5px var(--lime);}
+.rbar.l3{background:var(--yellow);box-shadow:0 0 5px var(--yellow);}
+.rbar.l4{background:var(--orange);box-shadow:0 0 7px var(--orange);animation:blk .9s ease-in-out infinite;}
+.rbar.l5{background:var(--crit);box-shadow:0 0 12px var(--crit);animation:blk .5s ease-in-out infinite;}
+.rscore{font-family:var(--orb);font-size:18px;font-weight:900;transition:color .5s;}
+.rlabel{font-family:var(--orb);font-size:9px;font-weight:700;transition:color .5s;}
+.threat-row{display:flex;gap:9px;margin-top:6px;}
+.th-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.th-f{font-size:14px;}
+.th-b{width:26px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.th-bf{height:100%;border-radius:2px;transition:width 1.2s;}
+.th-s{font-size:7px;font-family:var(--mono);font-weight:700;}
+
+/* PROGRESS */
+.prog{height:2px;background:rgba(0,0,0,.5);}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));width:0%;transition:width .2s;}
+
+/* ══ TZOFAR STRIP ══════════════════════════════════════════════ */
+#tzStrip{
+  display:none;background:rgba(255,0,80,.1);
+  border-bottom:2px solid var(--crit);
+  padding:8px 14px;align-items:center;gap:10px;
+  animation:tzpulse .6s ease-in-out infinite;flex-shrink:0;
+}
+#tzStrip.show{display:flex;}
+@keyframes tzpulse{0%,100%{background:rgba(255,0,80,.1)}50%{background:rgba(255,0,80,.2)}}
+.tz-icon{font-size:24px;animation:shake .3s ease-in-out infinite;}
+@keyframes shake{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.tz-main{flex:1;}
+.tz-title{font-family:var(--orb);font-size:13px;font-weight:900;color:#fff;}
+.tz-areas{font-size:10px;color:#ffaaaa;font-family:var(--mono);margin-top:2px;}
+.tz-cat{background:var(--crit);color:#fff;font-size:8px;
+  font-weight:800;padding:3px 8px;border-radius:3px;font-family:var(--mono);flex-shrink:0;}
+
+/* TICKER */
+.ticker{display:none;align-items:center;height:22px;overflow:hidden;
+  background:rgba(255,0,80,.04);border-bottom:1px solid rgba(255,0,80,.1);}
+.ticker.show{display:flex;}
+.t-lbl{background:var(--crit);color:#fff;font-size:7px;padding:0 9px;
+  height:100%;display:flex;align-items:center;letter-spacing:2px;flex-shrink:0;font-family:var(--orb);}
+.t-track{overflow:hidden;flex:1;}
+.t-inner{white-space:nowrap;font-size:9px;color:#ff9090;
+  font-family:var(--mono);animation:tk 22s linear infinite;}
+@keyframes tk{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+
+/* ══ BODY ══════════════════════════════════════════════════════ */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+/* ── MAP ── */
+.map-wrap{flex:1;display:flex;flex-direction:column;position:relative;min-height:0;}
+#mapHolder{flex:1;position:relative;min-height:0;}
+#map{position:absolute;inset:0;width:100%;height:100%;}
+
+.leaflet-control-zoom a{background:rgba(0,3,8,.92)!important;color:var(--accent)!important;
+  border-color:rgba(0,229,255,.2)!important;font-family:var(--mono)!important;}
+
+/* MAP CONTROLS */
+.map-mode-btns{position:absolute;top:10px;left:10px;z-index:450;
+  display:flex;flex-direction:row;gap:4px;}
+.map-ctrl-btns{position:absolute;top:10px;right:10px;z-index:450;
+  display:flex;flex-direction:column;gap:4px;}
+.mb{background:rgba(0,3,8,.92);border:1px solid rgba(0,229,255,.2);
+  border-radius:4px;color:var(--accent);padding:7px 9px;font-size:8px;
+  font-family:var(--mono);cursor:pointer;white-space:nowrap;letter-spacing:.5px;
+  min-height:32px;min-width:32px;text-align:center;}
+.mb.on{background:rgba(0,229,255,.14);border-color:var(--accent);}
+
+/* MAP LEGEND */
+.map-leg{position:absolute;bottom:12px;left:10px;z-index:400;
+  background:rgba(0,3,8,.93);border:1px solid var(--border);
+  border-radius:5px;padding:6px 9px;pointer-events:none;}
+.leg-t{font-size:6px;color:var(--dim);letter-spacing:1.5px;font-family:var(--mono);margin-bottom:4px;}
+.leg-r{display:flex;align-items:center;gap:5px;font-size:7px;margin-bottom:2px;}
+.leg-d{width:9px;height:9px;border-radius:2px;}
+
+/* MAP STATUS */
+.map-st{background:rgba(0,3,8,.94);border-top:1px solid var(--border);
+  padding:3px 8px;display:flex;gap:8px;align-items:center;
+  font-size:7px;font-family:var(--mono);color:var(--dim);flex-shrink:0;}
+.msi{display:flex;align-items:center;gap:3px;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:300px;flex-shrink:0;background:rgba(1,10,20,.97);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:9px 0;text-align:center;font-size:8px;font-weight:700;
+  letter-spacing:.5px;color:var(--dim);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;font-family:var(--orb);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* TAB CONTENT */
+.tc{display:none;flex:1;overflow-y:auto;flex-direction:column;}
+.tc.on{display:flex;}
+.tc::-webkit-scrollbar{width:2px;}
+.tc::-webkit-scrollbar-thumb{background:rgba(0,229,255,.1);}
+
+/* ALERT CARD */
+.ac{border-right:3px solid;padding:8px 9px;
+  border-bottom:1px solid rgba(255,255,255,.025);
+  animation:sla .25s ease;transition:background .15s;}
+.ac:active{background:rgba(255,255,255,.02);}
+@keyframes sla{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ac.c{border-right-color:var(--crit);background:rgba(255,0,80,.04);}
+.ac.h{border-right-color:var(--red);}
+.ac.w{border-right-color:var(--orange);}
+.ac.m{border-right-color:var(--yellow);}
+.ac.l{border-right-color:#234;}
+.ac-top{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:4px;gap:5px;flex-wrap:wrap;}
+.src-tag{border-radius:6px;padding:2px 6px;font-size:7px;
+  font-weight:800;border:1px solid;white-space:nowrap;}
+.ac-ts{font-family:var(--mono);font-size:7px;color:var(--dim);}
+.ac-title{font-size:10px;font-weight:700;color:#fff;
+  line-height:1.35;margin-bottom:2px;}
+.ac-body{font-size:9px;color:var(--text);line-height:1.5;}
+.ew-tag{display:inline-flex;align-items:center;gap:2px;
+  background:rgba(255,109,0,.12);border:1px solid rgba(255,109,0,.3);
+  border-radius:5px;padding:1px 5px;font-size:7px;
+  color:var(--orange);font-weight:800;animation:blk 1.5s ease-in-out infinite;}
+
+/* ZONE ITEM */
+.zi{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.025);
+  display:flex;align-items:center;gap:7px;cursor:pointer;transition:background .15s;}
+.zi:active{background:rgba(255,255,255,.025);}
+.zi-bar{width:3px;height:32px;border-radius:2px;flex-shrink:0;}
+.zi-name{font-size:10px;font-weight:700;color:#fff;}
+.zi-sub{font-size:7px;color:var(--dim);margin-top:1px;}
+.zi-prog{height:2px;background:rgba(255,255,255,.05);border-radius:1px;overflow:hidden;margin-top:3px;}
+.zi-pf{height:100%;border-radius:1px;transition:width 1.2s;}
+.zi-s{font-family:var(--orb);font-size:14px;font-weight:900;flex-shrink:0;min-width:26px;text-align:left;}
+
+/* DIPLO */
+.dip{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.025);}
+.dip-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.dip-rel{font-size:7px;font-weight:700;border-radius:4px;padding:2px 6px;border:1px solid;}
+.dip-st{font-size:8px;color:var(--text);line-height:1.5;margin-bottom:2px;}
+.dip-al{margin-top:3px;background:rgba(255,109,0,.07);border:1px solid rgba(255,109,0,.18);
+  border-radius:2px;padding:2px 5px;font-size:7px;color:var(--orange);}
+
+/* POPUPS */
+.zpop{direction:rtl;font-family:'Heebo',sans-serif;background:rgba(0,3,8,.97);
+  color:#fff;border:1px solid;border-radius:7px;padding:9px 11px;min-width:160px;}
+.leaflet-popup-content-wrapper{background:transparent!important;border:none!important;
+  box-shadow:none!important;padding:0!important;}
+.leaflet-popup-tip{display:none!important;}
+.leaflet-popup-content{margin:0!important;}
+
+/* ══ FLASH BANNER ══════════════════════════════════════════════ */
+#flash{position:fixed;top:auto;bottom:20px;left:50%;
+  transform:translateX(-50%);z-index:9999;display:none;
+  background:rgba(0,3,8,.97);border:2px solid var(--orange);
+  border-radius:10px;padding:12px 18px;width:90%;max-width:440px;
+  box-shadow:0 0 40px rgba(255,109,0,.3);
+  animation:fbin .35s cubic-bezier(.34,1.5,.64,1);direction:rtl;}
+#flash.c{border-color:var(--crit);animation:fbin .35s cubic-bezier(.34,1.5,.64,1),cg .8s ease-in-out infinite .35s;}
+@keyframes fbin{from{opacity:0;transform:translateX(-50%) translateY(14px) scale(.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+@keyframes cg{0%,100%{box-shadow:0 0 40px rgba(255,0,80,.5)}50%{box-shadow:0 0 80px rgba(255,0,80,.9)}}
+.fl-t{font-family:var(--orb);font-size:12px;font-weight:700;color:#fff;margin-bottom:4px;}
+.fl-b{font-size:10px;color:var(--text);line-height:1.5;}
+.fl-x{position:absolute;top:7px;left:9px;background:none;border:none;
+  color:var(--dim);cursor:pointer;font-size:14px;min-width:30px;min-height:30px;}
+
+/* SETTINGS MODAL */
+#cfgModal{display:none;position:fixed;inset:0;z-index:9995;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:16px;}
+#cfgModal.show{display:flex;}
+.cfg-box{background:#010c16;border:1px solid rgba(0,229,255,.25);
+  border-radius:12px;padding:24px;width:100%;max-width:480px;direction:rtl;}
+.cfg-title{font-family:var(--orb);font-size:13px;color:#fff;font-weight:700;margin-bottom:4px;}
+.cfg-sub{font-size:8px;color:var(--dim);font-family:var(--mono);
+  letter-spacing:1.5px;margin-bottom:18px;}
+.cfg-lbl{font-size:9px;font-family:var(--mono);letter-spacing:1.5px;margin-bottom:6px;display:block;}
+.cfg-input{width:100%;background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.2);
+  border-radius:6px;color:#fff;padding:11px 12px;font-family:var(--mono);
+  font-size:11px;outline:none;direction:ltr;-webkit-appearance:none;}
+.cfg-input:focus{border-color:rgba(0,229,255,.5);}
+.cfg-hint{font-size:8px;color:var(--dim);margin-top:4px;margin-bottom:14px;}
+.cfg-hint a{color:var(--accent);text-decoration:none;}
+.cfg-row{display:flex;gap:10px;margin-top:4px;}
+.cfg-btn{flex:1;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);
+  border-radius:6px;color:var(--accent);padding:11px;font-size:10px;
+  font-family:var(--orb);cursor:pointer;letter-spacing:.5px;
+  -webkit-appearance:none;min-height:44px;}
+.cfg-btn.g{background:rgba(0,255,157,.07);border-color:rgba(0,255,157,.25);color:var(--green);}
+#cfgStatus{display:none;padding:8px 10px;border-radius:5px;font-size:10px;
+  font-family:var(--mono);margin-bottom:12px;}
+
+/* BOOT SCREEN */
+#boot{position:fixed;inset:0;background:rgba(0,3,8,.97);z-index:9997;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;backdrop-filter:blur(8px);}
+#boot.done{display:none;}
+.boot-ring{width:70px;height:70px;border-radius:50%;
+  border:2px solid rgba(0,229,255,.12);position:relative;}
+.boot-ring::after{content:'';position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent,rgba(0,229,255,.85) 50deg,transparent 50deg);
+  animation:sw 1.5s linear infinite;}
+.boot-txt{font-family:var(--orb);font-size:10px;color:var(--accent);letter-spacing:3px;}
+.boot-log{display:flex;flex-direction:column;gap:5px;direction:rtl;text-align:right;}
+.boot-line{font-size:9px;font-family:var(--mono);color:var(--dim);
+  display:flex;gap:8px;opacity:0;animation:blin .35s ease forwards;}
+@keyframes blin{to{opacity:1;color:var(--text);}}
+
+/* ══ RESPONSIVE — IPAD ════════════════════════════════════════ */
+/* Portrait iPad / small: map top, sidebar bottom */
+/* ══ IPAD / MOBILE RESPONSIVE ══════════════════════════════════ */
+
+/* Portrait mobile & small iPad */
+@media (max-width: 900px){
+  /* Layout */
+  .body{flex-direction:column;}
+  .map-wrap{flex:none;height:55vh;min-height:240px;}
+  .sidebar{width:100%;flex:1;min-height:240px;border-right:none;border-top:1px solid var(--border);}
+  #map{height:100%;}
+
+  /* Header — bigger for touch */
+  h1{font-size:15px!important;}
+  .h-sub{font-size:9px!important;}
+  .clk{font-size:16px!important;}
+
+  /* Buttons — bigger tap targets */
+  .hbtn{min-height:44px!important;padding:10px 14px!important;font-size:11px!important;}
+  .hbtn.cfg{font-size:18px!important;}
+  .mb{min-height:38px!important;padding:8px 10px!important;font-size:10px!important;}
+  .tab{min-height:44px!important;font-size:10px!important;padding:12px 0!important;}
+
+  /* Alert cards */
+  .ac-ttl{font-size:12px!important;}
+  .ac-body{font-size:11px!important;}
+  .src-tag{font-size:9px!important;padding:3px 8px!important;}
+  .ac-ts{font-size:9px!important;}
+
+  /* Status indicators */
+  .spill{font-size:9px!important;}
+  .rscore{font-size:20px!important;}
+  .rlabel{font-size:10px!important;}
+
+  /* Zone list */
+  .zi-name{font-size:12px!important;}
+  .zi-sub{font-size:9px!important;}
+
+  /* Source chips */
+  .schip{font-size:9px!important;padding:4px 8px!important;}
+
+  /* Readiness bars */
+  .rbar{width:14px!important;height:22px!important;}
+
+  /* Threat row */
+  .th-s{font-size:9px!important;}
+
+  /* Map legend */
+  .map-leg{display:none;}
+
+  /* Hide heavy UI on small screens */
+  .h2{display:none;}
+}
+
+/* iPad landscape */
+@media (min-width: 768px) and (max-width: 1100px) and (orientation:landscape){
+  .body{flex-direction:row;}
+  .sidebar{width:280px;height:auto;}
+  .map-wrap{flex:1;}
+  .hbtn{font-size:11px!important;min-height:42px!important;}
+  .ac-ttl{font-size:12px!important;}
+  .ac-body{font-size:11px!important;}
+}
+
+/* iPad portrait */
+@media (min-width: 768px) and (max-width: 1100px) and (orientation:portrait){
+  .body{flex-direction:column;}
+  .map-wrap{flex:none;height:52vh;}
+  .sidebar{width:100%;flex:1;}
+  .ac-ttl{font-size:13px!important;}
+  .ac-body{font-size:11px!important;}
+  h1{font-size:16px!important;}
+}
+
+/* Desktop */
+@media (min-width:1100px){
+  .sidebar{width:300px;}
+  .map-wrap{flex:1;}
+  .body{height:calc(100vh - 140px);}
+}
+
+/* All touch devices */
+@media (pointer:coarse){
+  .hbtn,.mb,.btn,.tab,.zi,.ac{min-height:44px;}
+  .ac{padding:12px 10px;}
+  .tab{padding:12px 0;}
+  .hbtn{padding:10px 14px;}
+
+  /* Settings modal — bigger inputs */
+  .cfg-inp{font-size:16px!important;padding:13px!important;}
+  .cfg-btn{min-height:52px!important;font-size:13px!important;}
+  .cfg-lbl{font-size:12px!important;}
+  .cfg-t{font-size:16px!important;}
+  .cfg-hint{font-size:11px!important;}
+  .cfg-s{font-size:10px!important;}
+}
+
+/* iPhone small */
+@media (max-width:390px){
+  .map-wrap{height:45vh;}
+  .hbtns{gap:4px;}
+  .hbtn{padding:8px 8px!important;font-size:10px!important;}
+  .clk{font-size:14px!important;}
+}
+
+/* SOURCE CHIPS */
+.src-chips{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;
+  padding:4px 8px;background:rgba(0,3,8,.95);
+  border-top:1px solid rgba(0,229,255,.06);flex-shrink:0;scrollbar-width:none;}
+.src-chips::-webkit-scrollbar{display:none;}
+.schip{display:flex;align-items:center;gap:3px;padding:2px 6px;
+  border-radius:7px;font-size:7px;font-weight:700;border:1px solid;
+  white-space:nowrap;flex-shrink:0;}
+.schip.search{animation:blk .6s ease-in-out infinite;}
+
+/* ══ MAP ANIMATIONS ════════════════════════════════════════════ */
+@keyframes zone-pulse{0%,100%{opacity:.55}50%{opacity:.88}}
+@keyframes radar-spin{to{transform:rotate(360deg);}}
+.zone-alert{animation:zone-pulse .8s ease-in-out infinite!important;}
+@keyframes mpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.88)}}
+@keyframes scan-beam{0%{top:-1px;opacity:.7}100%{top:100%;opacity:0}}
+/* City alert circles */
+.city-alert-inner{animation:zone-pulse .6s ease-in-out infinite!important;}
+.city-alert-outer{animation:zone-pulse 1.2s ease-in-out infinite .3s!important;}
+</style>
 </head>
+<body>
 
-  <body>
-    <a href="#main-content" class="skip-link">דלג לתוכן הראשי</a>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!-- BOOT -->
+<div id="boot">
+  <div class="boot-ring"></div>
+  <div class="boot-txt" id="bootTxt">EWS BOOT...</div>
+  <div class="boot-log" id="bootLog"></div>
+</div>
+
+<!-- FLASH -->
+<div id="flash"><button class="fl-x" onclick="closeFlash()">✕</button>
+  <div class="fl-t" id="flT"></div><div class="fl-b" id="flB"></div></div>
+
+<!-- SETTINGS -->
+<div id="cfgModal">
+  <div class="cfg-box">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div><div class="cfg-title">⚙ הגדרות</div><div class="cfg-sub">SYSTEM CONFIGURATION</div></div>
+      <button onclick="closeCfg()" style="background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;padding:0">✕</button>
+    </div>
+    <label class="cfg-lbl" style="color:var(--accent)">🤖 ANTHROPIC API KEY</label>
+    <input id="cfgKey" type="password" class="cfg-input" placeholder="sk-ant-api03-..."/>
+    <div class="cfg-hint">קבל מפתח: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
+    <label class="cfg-lbl" style="color:#29b6f6">✈️ TELEGRAM TOKEN (אופציונלי)</label>
+    <input id="cfgTG" type="password" class="cfg-input" placeholder="123456:AAH3_..."/>
+    <div class="cfg-hint" style="margin-bottom:14px">צור בוט: <a href="https://t.me/BotFather" target="_blank" style="color:#29b6f6">@BotFather</a></div>
+    <div id="cfgStatus"></div>
+    <div class="cfg-row">
+      <button class="cfg-btn g" onclick="saveCfg()">💾 שמור והפעל</button>
+      <button class="cfg-btn" onclick="testCfg()">🔗 בדוק חיבור</button>
+    </div>
+    <div style="margin-top:12px;padding:8px 10px;background:rgba(255,214,0,.05);border:1px solid rgba(255,214,0,.15);border-radius:5px;font-size:9px;color:#6a5500;line-height:1.9">🔒 נשמר בדפדפן שלך בלבד (localStorage).</div>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <div class="h-row1">
+    <div class="h-logo">
+      <div class="radar-anim"><div class="ra-ring"></div><div class="ra-sweep"></div><div class="ra-dot"></div></div>
+      <div class="h-titles">
+        <h1>IDF MISSION CONTROL</h1>
+        <div class="h-sub">OREF LIVE · TZOFAR · NASA MAP · 24/7</div>
+      </div>
+    </div>
+    <div class="h-btns">
+      <div class="hclock" id="clk">00:00:00</div>
+      <button class="hbtn cfg" id="cfgBtn" onclick="openCfg()" title="הגדרות">⚙</button>
+      <button class="hbtn alarm" id="scanBtn" onclick="forceScan()">⚡</button>
+      <button class="hbtn" id="autoBtn" onclick="toggleAuto()">🔄</button>
+      <button class="hbtn" id="notifBtn" onclick="toggleNotif()">🔔</button>
+    </div>
+  </div>
+
+  <div class="h-row2">
+    <div class="spill"><div class="sp-dot try" id="spOref"></div><span id="spOrefL">OREF</span></div>
+    <div class="spill"><div class="sp-dot try" id="spNet"></div><span id="spNetL">NET</span></div>
+    <div class="spill"><div class="sp-dot try" id="spAI"></div><span id="spAIL">AI</span></div>
+    <div style="margin-right:auto"></div>
+    <div class="next-lbl" id="nextLbl">⏳ --</div>
+  </div>
+
+  <div class="ready-row">
+    <div style="font-size:7px;color:var(--dim);font-family:var(--mono)">THREAT</div>
+    <div style="display:flex;gap:2px;" id="rbars">
+      <div class="rbar" id="rb1"></div><div class="rbar" id="rb2"></div>
+      <div class="rbar" id="rb3"></div><div class="rbar" id="rb4"></div>
+      <div class="rbar" id="rb5"></div>
+    </div>
+    <div class="rscore" id="rscore" style="color:var(--green)">--</div>
+    <div class="rlabel" id="rlabel" style="color:var(--green)">--</div>
+    <div style="margin-right:auto"></div>
+    <div class="threat-row" id="threatRow"></div>
+  </div>
+
+  <div class="prog"><div class="prog-fill" id="prog"></div></div>
+</header>
+
+<!-- TZOFAR STRIP -->
+<div id="tzStrip">
+  <div class="tz-icon">🚨</div>
+  <div class="tz-main">
+    <div class="tz-title" id="tzTitle">אזעקת צבע אדום</div>
+    <div class="tz-areas" id="tzAreas"></div>
+  </div>
+  <div class="tz-cat" id="tzCat">CAT 1</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker" id="ticker">
+  <span class="t-lbl">⚡ FLASH</span>
+  <div class="t-track"><div class="t-inner" id="tkTxt">EWS ACTIVE...</div></div>
+</div>
+
+<!-- SOURCE CHIPS -->
+<div class="src-chips" id="srcChips"></div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div id="mapHolder">
+      <div id="map" class="mode-night"></div>
+
+      <!-- MAP MODE - LEFT TOP -->
+      <div class="map-mode-btns">
+        <div class="mb on" id="mb-n" onclick="setMode('night')">🌙</div>
+        <div class="mb" id="mb-s" onclick="setMode('sat')">🛰</div>
+        <div class="mb" id="mb-d" onclick="setMode('day')">☀️</div>
+      </div>
+
+      <!-- MAP CONTROLS - RIGHT TOP -->
+      <div class="map-ctrl-btns">
+        <div class="mb on" id="mb-z" onclick="toggleZones()">🗺</div>
+        <div class="mb" onclick="resetMap()">⊕</div>
+        <div class="mb" id="testBtn" onclick="runMapTest()" style="background:rgba(0,255,157,.08);border-color:rgba(0,255,157,.3);color:#00ff9d;margin-top:5px;font-size:9px">🧪 TEST</div>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="map-leg">
+        <div class="leg-t">ALERT LEVEL</div>
+        <div class="leg-r"><div class="leg-d" style="background:#00cfff;box-shadow:0 0 5px #00cfff"></div>🔵 EW מוקדם</div>
+        <div class="leg-r"><div class="leg-d" style="background:#00ff9d;box-shadow:0 0 5px #00ff9d"></div>🟢 חדירה</div>
+        <div class="leg-r"><div class="leg-d" style="background:#ffea00;box-shadow:0 0 5px #ffea00"></div>🟡 ירי רקטות</div>
+        <div class="leg-r"><div class="leg-d" style="background:#ff6d00;box-shadow:0 0 5px #ff6d00"></div>🟠 ירי מרובה</div>
+        <div class="leg-r"><div class="leg-d" style="background:#ff0050;box-shadow:0 0 6px #ff0050"></div>🔴 טיל / דחוף</div>
+      </div>
+    </div>
+
+    <!-- MAP STATUS BAR -->
+    <div class="map-st">
+      <div class="msi">🚨 OREF: <span id="msOref" style="color:var(--accent)">--</span></div>
+      <div class="msi">🔴 פעיל: <span id="msActive" style="color:var(--red)">0</span></div>
+      <div class="msi">📍 <span id="msAlerts" style="color:var(--yellow)">0</span></div>
+      <div style="margin-right:auto"></div>
+      <div id="msCoords" style="color:var(--dim);font-size:7px">31.5°N 35.0°E</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="tabs">
+      <div class="tab on" onclick="rtab('alerts',this)" data-tab="alerts">⚡ חי</div>
+      <div class="tab" onclick="rtab('oref',this)" data-tab="oref">🚨 OREF</div>
+      <div class="tab" onclick="rtab('zones',this)" data-tab="zones">🗺 אזורים</div>
+      <div class="tab" onclick="rtab('diplo',this)" data-tab="diplo">🌐 יחסים</div>
+    </div>
+    <div class="tc on" id="tc-alerts">
+      <div style="padding:20px;text-align:center;opacity:.3;font-size:10px;font-family:var(--mono)">טוען...</div>
+    </div>
+    <div class="tc" id="tc-oref">
+      <div style="padding:20px;text-align:center;opacity:.3;font-size:10px;font-family:var(--mono)">טוען היסטוריית OREF...</div>
+    </div>
+    <div class="tc" id="tc-zones"></div>
+    <div class="tc" id="tc-diplo"></div>
+  </div>
+
+</div><!-- /body -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const CLAUDE_API     = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL   = 'claude-sonnet-4-6';
+const CLAUDE_FAST    = 'claude-haiku-4-5-20251001';
+// Auto-detect: use local proxy when served from our server, direct when file://
+const IS_SERVER = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+const OREF_ACTIVE = IS_SERVER
+  ? '/proxy/oref-active'
+  : 'https://www.oref.org.il/WarningMessages/alert/alerts.json';
+const OREF_HIST   = IS_SERVER
+  ? '/proxy/oref-history'
+  : 'https://www.oref.org.il/WarningMessages/History/AlertsHistory.json';
+const WS_URL      = IS_SERVER ? `ws://${window.location.host}` : null;
+const SCAN_MS        = 90000;
+const OREF_MS        = 8000;
+
+let map, polyL={}, trajL=[], mkrL=[], tzLayer=[];
+let tileN,tileS,tileD,currentMode='night';
+let autoOn=false,autoTimer=null,nextAt=null;
+let isScanning=false,notifOn=false,prevLevel=0;
+let scanN=0,showZones=true;
+const seenIDs=new Set();
+const orefSeen=new Set();
+let allAlerts=[],allDiplo=[];
+
+// ── LEVELS ────────────────────────────────────────────────────
+const LVL={1:{c:'#00ff9d',n:'ROUTINE'},2:{c:'#b2ff59',n:'ELEVATED'},
+  3:{c:'#ffea00',n:'HIGH'},4:{c:'#ff6d00',n:'WARNING'},5:{c:'#ff0050',n:'EMERGENCY'}};
+const rC=r=>LVL[Math.min(5,Math.max(1,Math.round(r||1)))]?.c||'#00ff9d';
+const h2r=(h,a)=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;};
+
+// ── THREATS ───────────────────────────────────────────────────
+const THREATS=[
+  {id:'iran',f:'🇮🇷',n:'IRAN',c:'#ff1744'},
+  {id:'hamas',f:'🟩',n:'HAMAS',c:'#ff6d00'},
+  {id:'hizb',f:'🟨',n:'HIZB',c:'#ffb300'},
+  {id:'houthi',f:'🇾🇪',n:'HOUTH',c:'#ff8f00'},
+  {id:'syria',f:'🇸🇾',n:'SYR',c:'#bf360c'},
+  {id:'new',f:'⚠️',n:'NEW',c:'#ff0099'},
+];
+
+// ── 31 OREF ZONES ─────────────────────────────────────────────
+const ZONES=[
+  {id:'צ_העימות',  n:'קו העימות',       r:5, c:[[33.35,35.0],[33.35,35.55],[33.0,35.55],[33.0,35.1]],               cities:['מטולה','קריית שמונה','שלומי','מעלות']},
+  {id:'גליל_עליון',n:'גליל עליון',       r:4, c:[[33.2,35.0],[33.2,35.55],[32.9,35.55],[32.9,35.1]],                 cities:['צפת','ראש פינה','כרמיאל','עכו']},
+  {id:'גולן_צ',    n:'גולן צפון',        r:4, c:[[33.35,35.55],[33.35,36.05],[33.1,36.05],[33.1,35.55]],             cities:["מג'דל שמס",'מסעדה']},
+  {id:'גולן_ד',    n:'גולן דרום',        r:3, c:[[33.1,35.55],[33.1,36.05],[32.7,36.05],[32.7,35.55]],               cities:['קצרין','חמת גדר']},
+  {id:'גליל_מרכז', n:'גליל מרכז',        r:3, c:[[33.05,35.05],[33.05,35.3],[32.85,35.3],[32.85,35.05]],             cities:['סכנין','שפרעם']},
+  {id:'גליל_תחתון',n:'גליל תחתון',       r:3, c:[[33.0,35.0],[33.0,35.55],[32.7,35.55],[32.7,35.0]],                 cities:['טבריה','נצרת']},
+  {id:'גליל_מערב', n:'גליל מערבי',       r:3, c:[[33.05,34.95],[33.05,35.15],[32.75,35.15],[32.75,34.95]],           cities:['נהריה','עכו']},
+  {id:'המפרץ',     n:'חיפה והמפרץ',      r:3, c:[[32.9,34.85],[32.9,35.2],[32.6,35.2],[32.6,34.85]],                cities:['חיפה','קריות']},
+  {id:'הכרמל',     n:'הכרמל',            r:2, c:[[32.72,34.9],[32.72,35.1],[32.55,35.1],[32.55,34.9]],               cities:['דלית אל כרמל','עתלית']},
+  {id:'ואדי_ערה',  n:'ואדי ערה',         r:2, c:[[32.6,34.95],[32.6,35.15],[32.35,35.15],[32.35,34.95]],             cities:['אום אל פחם','חריש']},
+  {id:'מנשה',      n:'מנשה',             r:2, c:[[32.5,34.9],[32.5,35.1],[32.3,35.1],[32.3,34.9]],                   cities:['בנימינה','חדרה']},
+  {id:'העמקים',    n:'העמקים',           r:2, c:[[32.72,35.1],[32.72,35.55],[32.4,35.55],[32.4,35.1]],               cities:['עפולה','נצרת']},
+  {id:'בית_שאן',   n:'בקעת בית שאן',     r:2, c:[[32.55,35.42],[32.55,35.65],[32.35,35.65],[32.35,35.42]],           cities:['בית שאן']},
+  {id:'שרון',      n:'השרון',             r:2, c:[[32.45,34.82],[32.45,35.05],[32.1,35.05],[32.1,34.82]],             cities:['נתניה','רעננה','כפר סבא']},
+  {id:'ירקון',     n:'ירקון',             r:2, c:[[32.15,34.9],[32.15,35.15],[31.95,35.15],[31.95,34.9]],             cities:['מודיעין','לוד']},
+  {id:'גוש_דן',    n:'גוש דן — ת"א',     r:3, c:[[32.2,34.75],[32.2,34.95],[31.95,34.95],[31.95,34.75]],             cities:['תל אביב','בני ברק','חולון','בת-ים']},
+  {id:'ירושלים',   n:'ירושלים',           r:2, c:[[31.92,34.95],[31.92,35.38],[31.68,35.38],[31.68,35.0],[31.78,34.88]],cities:['ירושלים','בית שמש']},
+  {id:'שומרון',    n:'שומרון',            r:2, c:[[32.42,34.98],[32.42,35.42],[31.92,35.42],[31.92,34.98]],           cities:['אריאל','בית אל']},
+  {id:'יהודה',     n:'יהודה',             r:2, c:[[31.72,34.95],[31.72,35.38],[31.35,35.38],[31.35,35.0]],            cities:['אפרת','מעלה אדומים']},
+  {id:'בקעה',      n:'בקעת הירדן',        r:2, c:[[32.4,35.42],[32.4,35.65],[31.55,35.65],[31.55,35.42]],             cities:['מחולה']},
+  {id:'ים_המלח',   n:'ים המלח',           r:1, c:[[31.85,35.38],[31.85,35.65],[31.05,35.65],[31.05,35.38]],           cities:['עין גדי','מצדה']},
+  {id:'השפלה',     n:'השפלה',             r:2, c:[[32.0,34.82],[32.0,35.05],[31.62,35.05],[31.62,34.82]],             cities:['רחובות','ראשון לציון','לוד']},
+  {id:'שפלת_יהודה',n:'שפלת יהודה',        r:2, c:[[31.85,34.92],[31.85,35.25],[31.55,35.25],[31.55,34.92]],           cities:['קריית גת','גדרה']},
+  {id:'לכיש',      n:'לכיש',              r:2, c:[[31.62,34.65],[31.62,35.05],[31.25,35.05],[31.25,34.65]],            cities:['אשדוד','יבנה']},
+  {id:'מערב_לכיש', n:'מערב לכיש/אשקלון', r:3, c:[[31.75,34.5],[31.75,34.75],[31.3,34.75],[31.3,34.5]],               cities:['אשקלון']},
+  {id:'עוטף_עזה',  n:'עוטף עזה',          r:5, c:[[31.6,34.3],[31.6,34.65],[31.25,34.65],[31.25,34.3]],               cities:['שדרות','נתיב העשרה','כפר עזה','ניר עוז','בארי']},
+  {id:'נגב_מרכז',  n:'נגב מרכזי',         r:2, c:[[31.3,34.55],[31.3,35.25],[30.75,35.25],[30.75,34.55]],             cities:['באר שבע','עומר','רהט']},
+  {id:'נגב_מערב',  n:'נגב מערבי',         r:3, c:[[31.25,34.3],[31.25,34.65],[30.75,34.65],[30.75,34.3]],             cities:['נתיבות','אופקים']},
+  {id:'נגב_דרום',  n:'נגב דרומי',         r:2, c:[[30.75,34.5],[30.75,35.15],[29.7,35.15],[29.7,34.5]],               cities:['מצפה רמון','דימונה']},
+  {id:'ערבה',      n:'ערבה',              r:2, c:[[29.7,34.75],[29.7,35.05],[29.5,35.05],[29.5,34.75]],               cities:['יטבתה','ספיר']},
+  {id:'אילת',      n:'אילת',              r:3, c:[[29.65,34.9],[29.65,35.02],[29.45,35.02],[29.45,34.9]],              cities:['אילת']},
+];
+
+const SRCS=[
+  {id:'oref',lb:'🚨 OREF',c:'#ff4422',bc:'rgba(255,68,34,.14)'},
+  {id:'il',lb:'🇮🇱 ישראל',c:'#00cfff',bc:'rgba(0,207,255,.09)'},
+  {id:'world',lb:'🌍 World',c:'#88ccff',bc:'rgba(136,204,255,.07)'},
+  {id:'aljazeera',lb:'📺 AJZ',c:'#ff8800',bc:'rgba(255,136,0,.09)'},
+  {id:'arabic_tg',lb:'🔴 ערבי',c:'#ffcc44',bc:'rgba(255,204,68,.07)'},
+  {id:'idf',lb:'⚔️ IDF',c:'#00ff9d',bc:'rgba(0,255,157,.07)'},
+  {id:'intel_tg',lb:'🕵️ OSINT',c:'#aa44ff',bc:'rgba(170,68,255,.07)'},
+  {id:'mda',lb:'⚕️ MDA',c:'#ff4444',bc:'rgba(255,68,68,.09)'},
+];
+
+const DIPLO_DEF=[
+  {f:'🇪🇬',n:'מצרים',r:'שלום קר',rc:'#3366aa',t:'stable',ti:'→',tc:'#446',st:'יחסים תקינים. שיתוף ביטחוני מוגבל.'},
+  {f:'🇯🇴',n:'ירדן',r:'שלום',rc:'#2255aa',t:'down',ti:'↘',tc:'#00ff9d',st:'מתח בגין עזה.',al:'מתח'},
+  {f:'🇸🇦',n:'סעודיה',r:'נורמליזציה',rc:'#7744aa',t:'stable',ti:'→',tc:'#446',st:'שיחות רקע. שיתוף עקיף.'},
+  {f:'🇦🇪',n:'אמירויות',r:'אברהם',rc:'#22aa66',t:'stable',ti:'→',tc:'#446',st:'יחסים מלאים.'},
+  {f:'🇱🇧',n:'לבנון',r:'עוינות',rc:'#cc2200',t:'up',ti:'↑',tc:'#ff1744',st:'מלחמה — חיזבאללה.',al:'פעיל'},
+  {f:'🇸🇾',n:'סוריה',r:'עוינות',rc:'#aa3322',t:'up',ti:'↑',tc:'#ff1744',st:'חיזבאללה + IDF.'},
+  {f:'🇮🇷',n:'איראן',r:'אויב',rc:'#dd0000',t:'up',ti:'⬆',tc:'#ff0050',st:'גרעין + פרוקסי.',al:'איום ישיר'},
+  {f:'🇹🇷',n:'טורקיה',r:'מתח',rc:'#aa4400',t:'up',ti:'↑',tc:'#ff1744',st:'ניתוק יחסים.'},
+  {f:'🇮🇶',n:'עיראק',r:'עוינות',rc:'#993300',t:'up',ti:'↑',tc:'#ff1744',st:'מיליציות. UAV.',al:'מיליציות'},
+  {f:'🇾🇪',n:"תימן",r:'מלחמה',rc:'#dd0022',t:'up',ti:'⬆',tc:'#ff0050',st:'UAV וטילים.',al:'UAV'},
+  {f:'🇲🇦',n:'מרוקו',r:'אברהם',rc:'#22aa66',t:'stable',ti:'→',tc:'#446',st:'יחסים דיפלומטיים.'},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════════════════
+function tick(){
+  const now=new Date();
+  document.getElementById('clk').textContent=now.toLocaleTimeString('he-IL');
+  if(nextAt){const d=Math.max(0,Math.round((nextAt-Date.now())/1000)),m=Math.floor(d/60),s=d%60;document.getElementById('nextLbl').textContent=d>0?`⏱ ${m}:${String(s).padStart(2,'0')}`:'⚡';}
+  // Update telemetry UTC (reuse same interval — no extra setInterval)
+  const tu=document.getElementById('tele-utc');
+  if(tu)tu.textContent='UTC '+now.toUTCString().slice(17,25);
+}
+setInterval(tick,1000);tick();
+
+// ═══════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════
+async function toggleNotif(){
+  if(!notifOn){const p=await Notification.requestPermission();if(p==='granted'){notifOn=true;document.getElementById('notifBtn').classList.add('on');document.getElementById('notifBtn').textContent='🔔✓';}}
+  else{notifOn=false;document.getElementById('notifBtn').classList.remove('on');document.getElementById('notifBtn').textContent='🔔';}
+}
+function pushNotif(t,b){if(notifOn&&Notification.permission==='granted')new Notification(t,{body:b,tag:'ews'});}
+
+// ═══════════════════════════════════════════════════════════════
+// FLASH
+// ═══════════════════════════════════════════════════════════════
+let flashT=null;
+function showFlash(t,b,crit=false){const el=document.getElementById('flash');el.className=crit?'c':'';el.style.display='block';document.getElementById('flT').textContent=t;document.getElementById('flB').textContent=b;if(flashT)clearTimeout(flashT);flashT=setTimeout(closeFlash,9000);}
+function closeFlash(){document.getElementById('flash').style.display='none';}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTO SCAN
+// ═══════════════════════════════════════════════════════════════
+function toggleAuto(){
+  autoOn=!autoOn;const btn=document.getElementById('autoBtn');
+  if(autoOn){btn.classList.add('on');btn.textContent='🔄✓';schedNext();}
+  else{btn.classList.remove('on');btn.textContent='🔄';if(autoTimer)clearTimeout(autoTimer);nextAt=null;}
+}
+function schedNext(){if(autoTimer)clearTimeout(autoTimer);nextAt=Date.now()+SCAN_MS;autoTimer=setTimeout(()=>{aiScan();schedNext();},SCAN_MS);}
+function forceScan(){if(autoOn&&autoTimer)clearTimeout(autoTimer);aiScan();if(autoOn)schedNext();}
+function setP(p){document.getElementById('prog').style.width=p+'%';}
+
+// Page visibility - pause when in background
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  else if(!document.hidden&&autoOn&&!autoTimer)schedNext();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// OREF POLLING — 10 seconds
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════
+// WEBSOCKET — connects to server for real-time push
+// ═══════════════════════════════════════════════════
+let ws = null;
+function connectWS() {
+  if (!WS_URL || ws) return;
+  try {
+    ws = new WebSocket(WS_URL);
+    ws.onopen = () => {
+      setDot('Net','ok','SERVER ✓');
+      addDiag('WebSocket: מחובר לשרת','ok');
+    };
+    ws.onmessage = (ev) => {
+      try {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'OREF_ALERT') {
+          const d = msg.payload;
+          showTzofar(d.title, d.data || [], d.desc || '', d.cat || 1);
+          addDiag('🚨 OREF מהשרת: ' + d.title, 'err');
+        }
+        if (msg.type === 'OREF_CLEAR') {
+          hideTzofar();
+          addDiag('OREF: אין אזעקות', 'ok');
+        }
+        if (msg.type === 'NEW_ALERT') {
+          ingestAlert(msg.payload);
+        }
+        if (msg.type === 'OREF_HISTORY') {
+          (msg.payload || []).slice(0, 5).forEach(h => {
+            const key = 'oh:' + h.alertDate + ':' + h.title;
+            if (seenIDs.has(key)) return;
+            ingestAlert({ id: key, title: '📋 ' + h.title, body: h.data || '',
+              source: 'oref', severity: 'high', affectedRegions: [], timestamp: new Date(h.alertDate||0).getTime() || Date.now() });
+          });
+        }
+        if (msg.type === 'INIT') {
+          if (msg.payload.orefActive) {
+            const d = msg.payload.orefActive;
+            showTzofar(d.title, d.data || [], '', d.cat || 1);
+          }
+          (msg.payload.alerts || []).forEach(a => ingestAlert(a));
+          addDiag(`שרת: ${(msg.payload.alerts||[]).length} alerts, OREF: ${msg.payload.orefActive ? 'פעיל' : 'שגרה'}`, 'ok');
+        }
+      } catch(e) { console.warn('[WS parse]', e); }
+    };
+    ws.onclose = () => {
+      ws = null;
+      setDot('Net','warn','RETRY');
+      setTimeout(connectWS, 3000);
+    };
+    ws.onerror = () => { ws = null; };
+  } catch(e) {
+    addDiag('WS: ' + e.message, 'warn');
+  }
+}
+
+async function pollOref(){
+  const t0=Date.now();
+  try{
+    const r=await fetch(OREF_ACTIVE,{
+      headers:{'Referer':'https://www.oref.org.il/','X-Requested-With':'XMLHttpRequest','Accept':'application/json'},
+      mode:'cors',cache:'no-store',signal:AbortSignal.timeout(5000)
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    const ms=Date.now()-t0;
+    document.getElementById('msOref').textContent=`${ms}ms ✓`;
+    document.getElementById('spOref').className='sp-dot ok';
+    document.getElementById('spOrefL').textContent='OREF ✓';
+
+    if(!txt||!txt.trim()){clearTzofar();return;}
+    const data=JSON.parse(txt);
+    if(data?.data?.length>0){
+      const areas=data.data,title=data.title||'אזעקה',desc=data.desc||'',cat=parseInt(data.cat)||1;
+      showTzofar(title,areas,desc,cat);
+      const key=`oref:${data.id||title}:${areas.slice(0,5).join(',')}`;
+      if(!orefSeen.has(key)){
+        orefSeen.add(key);
+        ingestAlert({id:key,title:`🚨 ${title}`,body:`אזורים: ${areas.join(', ')}. ${desc}`,
+          source:'oref',severity:'critical',earlyWarning:false,confidence:99,
+          affectedRegions:areas.map(c=>ZONES.find(z=>(z.cities||[]).includes(c))?.id).filter(Boolean),
+          timestamp:Date.now()});
+        showFlash(`🚨 ${title}`,areas.slice(0,5).join(', '),true);
+        pushNotif('🚨 אזעקת צבע אדום!',areas.join(', '));
+      }
+    } else {clearTzofar();}
+  }catch(e){
+    document.getElementById('msOref').textContent='CORS';
+    document.getElementById('spOref').className='sp-dot warn';
+    document.getElementById('spOrefL').textContent='OREF⚠';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CITY DATABASE — coordinates for every OREF city
+// Source: פיקוד העורף city list with lat/lng
+// ═══════════════════════════════════════════════════════════════
+const CITIES = {
+  // ── צפון ──
+  'מטולה':         {lat:33.27,lng:35.57,r:800},
+  'קריית שמונה':   {lat:33.21,lng:35.57,r:1200},
+  'שלומי':         {lat:33.07,lng:35.14,r:900},
+  'מעלות':         {lat:33.02,lng:35.27,r:1100},
+  'נהריה':         {lat:33.00,lng:35.10,r:1300},
+  'עכו':           {lat:32.93,lng:35.08,r:1400},
+  'נצרת':          {lat:32.70,lng:35.30,r:1600},
+  'צפת':           {lat:32.96,lng:35.50,r:1200},
+  'ראש פינה':      {lat:32.97,lng:35.54,r:900},
+  'כרמיאל':        {lat:32.92,lng:35.30,r:1200},
+  'טבריה':         {lat:32.79,lng:35.53,r:1300},
+  'מרום הגליל':    {lat:33.00,lng:35.40,r:800},
+  "מג'דל שמס":     {lat:33.27,lng:35.77,r:700},
+  'מסעדה':         {lat:33.25,lng:35.77,r:600},
+  'קצרין':         {lat:32.99,lng:35.69,r:1000},
+  'חיפה':          {lat:32.82,lng:35.00,r:2500},
+  'קריות':         {lat:32.85,lng:35.07,r:1800},
+  'קריית ביאליק':  {lat:32.83,lng:35.09,r:1000},
+  'קריית אתא':     {lat:32.81,lng:35.11,r:1100},
+  'קריית מוצקין':  {lat:32.84,lng:35.07,r:900},
+  'טירת כרמל':     {lat:32.76,lng:34.97,r:1000},
+  'חדרה':          {lat:32.44,lng:34.92,r:1400},
+  'בנימינה':       {lat:32.53,lng:34.95,r:800},
+  // ── מרכז ──
+  'נתניה':         {lat:32.33,lng:34.86,r:2000},
+  'הרצליה':        {lat:32.16,lng:34.84,r:1600},
+  'כפר סבא':       {lat:32.18,lng:34.91,r:1400},
+  'רעננה':         {lat:32.19,lng:34.87,r:1300},
+  'תל אביב':       {lat:32.07,lng:34.79,r:3500},
+  'בני ברק':       {lat:32.08,lng:34.83,r:1400},
+  'פתח תקווה':     {lat:32.09,lng:34.89,r:2000},
+  'חולון':         {lat:32.01,lng:34.78,r:1600},
+  'בת-ים':         {lat:32.02,lng:34.75,r:1300},
+  'ראשון לציון':   {lat:31.97,lng:34.80,r:2000},
+  'רחובות':        {lat:31.90,lng:34.81,r:1600},
+  'נס ציונה':      {lat:31.93,lng:34.80,r:1100},
+  'לוד':           {lat:31.95,lng:34.90,r:1400},
+  'רמלה':          {lat:31.93,lng:34.88,r:1400},
+  'מודיעין':       {lat:31.90,lng:35.01,r:1600},
+  'ראש העין':      {lat:32.10,lng:34.96,r:1100},
+  'כפר יונה':      {lat:32.32,lng:34.94,r:900},
+  // ── ירושלים וסביבה ──
+  'ירושלים':       {lat:31.77,lng:35.22,r:4000},
+  'בית שמש':       {lat:31.75,lng:34.99,r:1400},
+  'גבעת זאב':      {lat:31.89,lng:35.17,r:800},
+  // ── שפלה ──
+  'אשדוד':         {lat:31.80,lng:34.65,r:2000},
+  'יבנה':          {lat:31.88,lng:34.74,r:1100},
+  'קריית גת':      {lat:31.61,lng:34.77,r:1200},
+  'גדרה':          {lat:31.81,lng:34.78,r:900},
+  // ── דרום ──
+  'אשקלון':        {lat:31.67,lng:34.57,r:2000},
+  'שדרות':         {lat:31.52,lng:34.60,r:1100},
+  'נתיב העשרה':    {lat:31.55,lng:34.52,r:600},
+  'כפר עזה':       {lat:31.47,lng:34.53,r:500},
+  'ניר עוז':       {lat:31.36,lng:34.47,r:500},
+  'בארי':          {lat:31.40,lng:34.49,r:600},
+  'רעים':          {lat:31.44,lng:34.52,r:500},
+  'כפר מימון':     {lat:31.44,lng:34.64,r:600},
+  'באר שבע':       {lat:31.25,lng:34.80,r:2500},
+  'עומר':          {lat:31.28,lng:34.85,r:1000},
+  'רהט':           {lat:31.39,lng:34.75,r:1200},
+  'דימונה':        {lat:31.07,lng:35.03,r:1200},
+  'מצפה רמון':     {lat:30.61,lng:34.80,r:1000},
+  'נתיבות':        {lat:31.42,lng:34.59,r:1100},
+  'אופקים':        {lat:31.31,lng:34.62,r:1100},
+  'קריית מלאכי':   {lat:31.73,lng:34.74,r:900},
+  'אילת':          {lat:29.56,lng:34.95,r:2000},
+  // ── בקעה + ירדן ──
+  'בית שאן':       {lat:32.50,lng:35.50,r:1100},
+  'מחולה':         {lat:32.34,lng:35.52,r:500},
+  // ── שומרון + יהודה ──
+  'אריאל':         {lat:32.10,lng:35.17,r:1000},
+  'בית אל':        {lat:31.94,lng:35.22,r:700},
+  'אפרת':          {lat:31.66,lng:35.17,r:900},
+  'מעלה אדומים':   {lat:31.77,lng:35.30,r:1100},
+};
+
+// ─────────────────────────────────────────────────────────────
+// ALERT LEVEL COLOR SCALE
+// 1 = כחול  — אזהרה מוקדמת / EW
+// 2 = ירוק  — חדירה / כטב"מ
+// 3 = צהוב  — ירי רקטות רגיל
+// 4 = כתום  — ירי מרובה / UAV
+// 5 = אדום  — טיל בליסטי / אזעקה מיידית
+// ─────────────────────────────────────────────────────────────
+const ALERT_SCALE = {
+  1: { c:'#00cfff', fill:'.15', pulse:'2s',   label:'כחול — EW',         icon:'🔵', border:'#00cfff' },
+  2: { c:'#00ff9d', fill:'.18', pulse:'1.5s',  label:'ירוק — חדירה',      icon:'🟢', border:'#00ff9d' },
+  3: { c:'#ffea00', fill:'.20', pulse:'1s',    label:'צהוב — ירי רקטות',  icon:'🟡', border:'#ffea00' },
+  4: { c:'#ff6d00', fill:'.22', pulse:'.7s',   label:'כתום — ירי מרובה',  icon:'🟠', border:'#ff6d00' },
+  5: { c:'#ff0050', fill:'.28', pulse:'.45s',  label:'אדום — טיל / דחוף', icon:'🔴', border:'#ff0050' },
+};
+// Map OREF cat → level (cat=1 most urgent, cat=6 least)
+const catToLevel = (cat) =>
+  cat <= 1 ? 5 :
+  cat <= 2 ? 4 :
+  cat <= 3 ? 3 :
+  cat <= 4 ? 2 : 1;
+
+function alertColor(cat) { return ALERT_SCALE[catToLevel(cat)]; }
+let cityAlertLayer = [];   // active city alert circles
+let cityAlertSet   = new Set();
+
+function showCityAlert(cityName, title, cat) {
+  const cd = CITIES[cityName];
+  if (!cd) return false;
+  if (cityAlertSet.has(cityName)) return false;
+  cityAlertSet.add(cityName);
+
+  const sc = alertColor(cat);
+  const c  = sc.c;
+  const ms = sc.pulse;
+
+  // ── Outer warning circle (radius = city size) ──────────────
+  const outer = L.circle([cd.lat, cd.lng], {
+    pane:'city-alerts',
+    radius:      cd.r * 2.5,
+    color:       c,
+    fillColor:   h2r(c, .07),
+    fillOpacity: 1,
+    weight:      1,
+    dashArray:   '4,4',
+    className:   'city-alert-outer',
+  }).addTo(map);
+
+  // ── Inner filled circle ────────────────────────────────────
+  const inner = L.circle([cd.lat, cd.lng], {
+    pane:'city-alerts',
+    radius:      cd.r,
+    color:       c,
+    fillColor:   h2r(c, .28),
+    fillOpacity: 1,
+    weight:      2.5,
+    className:   'city-alert-inner',
+  }).addTo(map);
+
+  inner.bindPopup(`
+    <div class="zpop" style="border-color:${c}">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+        <div style="font-size:22px">${sc.icon}</div>
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:${c};
+            text-shadow:0 0 10px ${c}">${cityName}</div>
+          <div style="font-size:8px;color:${c};font-family:'Share Tech Mono',monospace;
+            font-weight:700;letter-spacing:.5px">${sc.label} · CAT ${cat}</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:#fff;font-weight:700;margin-bottom:3px">${title}</div>
+      <div style="font-size:8px;color:#7ab4c8;margin-bottom:5px">
+        היכנסו למרחב המוגן מיד! · טווח: ${(cd.r/1000).toFixed(1)} ק"מ
+      </div>
+      <div style="display:flex;gap:2px">${[1,2,3,4,5].map(i=>`<div style="flex:1;height:4px;border-radius:2px;
+        background:${i<=catToLevel(cat)?c:'rgba(255,255,255,.08)'}"></div>`).join('')}</div>
+    </div>`, {maxWidth:210,className:''});
+
+  // ── Pulsing icon at center ─────────────────────────────────
+  const icon = L.divIcon({
+    html: `<div style="
+      position:relative;width:44px;height:44px;
+      transform:translate(-50%,-50%);pointer-events:none;
+    ">
+      <div style="position:absolute;inset:-4px;border-radius:50%;
+        border:2px solid ${c};
+        box-shadow:0 0 16px ${c},0 0 32px ${h2r(c,.4)};
+        animation:mpulse ${ms} ease-in-out infinite;"></div>
+      <div style="width:100%;height:100%;border-radius:50%;
+        background:${h2r(c,.85)};
+        display:flex;align-items:center;justify-content:center;
+        font-size:20px;border:2px solid ${c};
+        animation:mpulse ${ms} ease-in-out infinite;">${sc.icon}</div>
+    </div>`,
+    className:'',iconAnchor:[0,0],
+  });
+  const mk = L.marker([cd.lat, cd.lng], {icon, zIndexOffset:2000});
+  mk.addTo(map);
+  mk.on('click', () => inner.openPopup());
+
+  // ── City name label ────────────────────────────────────────
+  const lbl = L.divIcon({
+    html: `<div style="
+      background:${h2r(c,.92)};color:#fff;
+      font-size:9px;font-weight:800;
+      font-family:'Orbitron',sans-serif;
+      padding:3px 8px;border-radius:3px;
+      white-space:nowrap;pointer-events:none;
+      margin-top:26px;
+      box-shadow:0 2px 8px rgba(0,0,0,.6);
+      border:1px solid ${c};
+    ">${cityName}</div>`,
+    className:'',iconAnchor:[0,0],
+  });
+  const lblM = L.marker([cd.lat, cd.lng], {icon:lbl, interactive:false, zIndexOffset:1999});
+  lblM.addTo(map);
+
+  cityAlertLayer.push(outer, inner, mk, lblM);
+  return true;
+}
+
+function clearCityAlerts() {
+  cityAlertLayer.forEach(m => { try { map.removeLayer(m); } catch {} });
+  cityAlertLayer = [];
+  cityAlertSet.clear();
+}
+
+// ─────────────────────────────────────────────────────────────
+// TZOFAR — show + hide on map (uses city polygons)
+// ─────────────────────────────────────────────────────────────
+function showTzofar(title, areas, desc, cat) {
+  // ── Header strip — colored by alert level ────────────────
+  const sc  = alertColor(cat);
+  const strip = document.getElementById('tzStrip');
+  strip.classList.add('show');
+  // Dynamic colors on the strip
+  strip.style.background      = h2r(sc.c, .12);
+  strip.style.borderBottomColor = sc.c;
+  document.getElementById('tzTitle').textContent  = title;
+  document.getElementById('tzTitle').style.color  = '#fff';
+  document.getElementById('tzAreas').textContent  = areas.slice(0,8).join(' · ') + (areas.length>8 ? ` +${areas.length-8}` : '');
+  const catEl = document.getElementById('tzCat');
+  catEl.textContent    = `${sc.icon} ${sc.label.split('—')[0].trim()}`;
+  catEl.style.background = sc.c;
+  catEl.style.color      = catToLevel(cat) <= 2 ? '#000' : '#fff';
+  document.getElementById('msActive').textContent = areas.length;
+
+  // ── Clear previous alerts ────────────────────────────────
+  clearCityAlerts();
+  tzLayer.forEach(m => { try { map.removeLayer(m); } catch {} });
+  tzLayer = [];
+
+  let mapped = 0;
+  const bounds = [];
+
+  areas.forEach(cityRaw => {
+    // Normalize city name (remove trailing spaces, common suffixes)
+    const city = cityRaw.trim();
+
+    // 1. Try exact city polygon
+    if (showCityAlert(city, title, cat)) {
+      const cd = CITIES[city];
+      if (cd) bounds.push([cd.lat, cd.lng]);
+      mapped++;
+      // Also elevate the parent zone
+      const z = ZONES.find(z => (z.cities||[]).some(c => c === city || city.includes(c) || c.includes(city)));
+      if (z) updateZone(z.id, 5, title);
+      return;
+    }
+
+    // 2. Fuzzy match in CITIES
+    const fuzzy = Object.keys(CITIES).find(k =>
+      k.includes(city.slice(0,4)) || city.includes(k.slice(0,4)));
+    if (fuzzy && showCityAlert(fuzzy, title, cat)) {
+      const cd = CITIES[fuzzy];
+      if (cd) bounds.push([cd.lat, cd.lng]);
+      mapped++;
+      return;
+    }
+
+    // 3. Fallback: parent zone highlight
+    const z = ZONES.find(z => (z.cities||[]).some(c => c === city || city.includes(c) || c.includes(city)));
+    if (z) {
+      updateZone(z.id, 5, title);
+      const p = polyL[z.id];
+      if (p) {
+        const ctr = p.getBounds().getCenter();
+        bounds.push([ctr.lat, ctr.lng]);
+      }
+      mapped++;
+    }
+  });
+
+  // ── Fly to affected area ─────────────────────────────────
+  if (bounds.length > 0) {
+    if (bounds.length === 1) {
+      const cd = CITIES[areas[0]] || CITIES[Object.keys(CITIES).find(k=>areas[0]?.includes(k.slice(0,4)))||''];
+      map.flyTo(bounds[0], cd ? Math.min(13, map.getZoom()+2) : 11, {duration:1.2});
+    } else {
+      map.flyToBounds(L.latLngBounds(bounds), {padding:[60,60], duration:1.2, maxZoom:13});
+    }
+  }
+
+  // ── Status update ────────────────────────────────────────
+  document.getElementById('msOref').textContent = `${areas.length} עיר | ${mapped} ממופות`;
+}
+
+function clearTzofar() {
+  document.getElementById('tzStrip').classList.remove('show');
+  document.getElementById('msActive').textContent = '0';
+  clearCityAlerts();
+  tzLayer.forEach(m => { try { map.removeLayer(m); } catch {} });
+  tzLayer = [];
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEST SYSTEM — test all display modes
+// ─────────────────────────────────────────────────────────────
+let testRunning = false;
+const TEST_SCENARIOS = [
+  {
+    name:'🔵 EW — הנחיה מוקדמת למרכז',
+    areas:['תל אביב','בני ברק','פתח תקווה'],
+    cat:5, delay:3500,  // כחול — אזהרה מוקדמת
+    zones:[{id:'גד',r:3}],
+  },
+  {
+    name:'🟢 חדירת כטב"מ — גליל',
+    areas:['קריית שמונה','מטולה','מעלות'],
+    cat:4, delay:3500,  // ירוק — חדירה
+    zones:[{id:'צ_ה',r:3},{id:'ג_ע',r:3}],
+  },
+  {
+    name:'🟡 ירי רקטות — עוטף עזה',
+    areas:['שדרות','נתיב העשרה','כפר עזה','ניר עוז'],
+    cat:3, delay:3500,  // צהוב — ירי רגיל
+    zones:[{id:'עוטף',r:4}],
+  },
+  {
+    name:'🟠 ירי מרובה — צפון',
+    areas:['נהריה','עכו','קריית שמונה','שלומי','מעלות'],
+    cat:2, delay:3500,  // כתום — מרובה
+    zones:[{id:'צ_ה',r:4},{id:'ג_מע',r:4},{id:'חיפה',r:3}],
+  },
+  {
+    name:'🔴 טיל בליסטי — מרכז הארץ',
+    areas:['תל אביב','בני ברק','פתח תקווה','חולון','בת-ים','ראשון לציון','רמלה'],
+    cat:1, delay:4000,  // אדום — הכי דחוף
+    zones:[{id:'גד',r:5},{id:'שרון',r:4},{id:'ירקון',r:4},{id:'שפלה',r:4}],
+  },
+  {
+    name:'⚪ ניקוי — מצב שגרה',
+    areas:[], cat:6, delay:2000, zones:[],
+  },
+];
+
+async function runMapTest() {
+  if (testRunning) return;
+  testRunning = true;
+  const btn = document.getElementById('testBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ בודק...';
+
+  // Reset zones to default
+  ZONES.forEach(z => updateZone(z.id, z.r || 2));
+  clearTzofar();
+
+  for (const sc of TEST_SCENARIOS) {
+    // Show banner
+    showFlash(`🧪 TEST: ${sc.name}`, sc.areas.slice(0,5).join(' · ') || 'ניקוי מפה', sc.cat===1);
+
+    if (sc.areas.length > 0) {
+      showTzofar(sc.name, sc.areas, 'בדיקת מערכת', sc.cat);
+      sc.zones.forEach(z => updateZone(z.id, z.r));
+    } else {
+      clearTzofar();
+      ZONES.forEach(z => updateZone(z.id, z.r || 2));
+    }
+
+    await new Promise(r => setTimeout(r, sc.delay));
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🧪 TEST MAP';
+  testRunning = false;
+  addDiag('בדיקת מפה הושלמה — כל הסצנריות עברו', 'ok');
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// MAP INIT
+// ═══════════════════════════════════════════════════════════════
+function initMap(){
+  map=L.map('map',{center:[31.0,35.2],zoom:7,zoomControl:true,attributionControl:false,
+    renderer:L.canvas({tolerance:10})});
+
+  // ── TILES ────────────────────────────────────────────────
+  tileN=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  tileS=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+  tileD=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+
+  // ── NASA CSS INJECTIONS ──────────────────────────────────
+  const st=document.createElement('style');
+  st.textContent=`
+    @keyframes zone-pulse{0%,100%{opacity:.55}50%{opacity:.88}}
+    @keyframes radar-spin{to{transform:rotate(360deg);}}
+    @keyframes blink-fast{0%,100%{opacity:1}50%{opacity:.2}}
+    @keyframes scanbeam{0%{top:-2px;opacity:.6}100%{top:100%;opacity:0}}
+
+    /* PHOSPHOR CRT — night mode only */
+    
+
+    /* LEAFLET CONTROLS */
+    .leaflet-control-zoom a{
+      background:rgba(0,3,8,.95)!important;color:#00e5ff!important;
+      border:1px solid rgba(0,229,255,.25)!important;font-family:'Share Tech Mono',monospace!important;
+      font-size:16px!important;width:32px!important;height:32px!important;line-height:32px!important;}
+    .leaflet-control-zoom{border:none!important;}
+
+    /* CORNER BRACKETS ON MAP */
+    .map-corner{position:absolute;width:20px;height:20px;z-index:402;pointer-events:none;}
+    .mc-tl{top:8px;left:8px;border-top:2px solid rgba(0,229,255,.45);border-left:2px solid rgba(0,229,255,.45);}
+    .mc-tr{top:8px;right:8px;border-top:2px solid rgba(0,229,255,.45);border-right:2px solid rgba(0,229,255,.45);}
+    .mc-bl{bottom:8px;left:8px;border-bottom:2px solid rgba(0,229,255,.45);border-left:2px solid rgba(0,229,255,.45);}
+    .mc-br{bottom:8px;right:8px;border-bottom:2px solid rgba(0,229,255,.45);border-right:2px solid rgba(0,229,255,.45);}
+
+    /* SCAN BEAM — single, slow, 1 animation only */
+    .map-scanbeam{
+      position:absolute;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(0,229,255,.35),transparent);
+      pointer-events:none;z-index:401;
+      animation:scanbeam 6s linear infinite;
+    }
+
+    /* TELEMETRY HUD */
+    .map-telemetry{
+      position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+      z-index:403;pointer-events:none;display:flex;gap:10px;
+    }
+    .tele-item{
+      background:rgba(0,3,8,.7);border:1px solid rgba(0,229,255,.12);
+      border-radius:3px;padding:3px 8px;font-family:'Share Tech Mono',monospace;
+      font-size:7px;color:rgba(0,229,255,.55);letter-spacing:1px;white-space:nowrap;
+    }
+
+    /* ZONE POPUP */
+    .zpop{direction:rtl;font-family:'Heebo',sans-serif;
+      background:rgba(0,3,8,.97);color:#fff;border:1px solid;
+      border-radius:7px;padding:10px 12px;min-width:165px;}
+    .leaflet-popup-content-wrapper{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;}
+    .leaflet-popup-tip{display:none!important;}
+    .leaflet-popup-content{margin:0!important;}
+  `;
+  document.head.appendChild(st);
+
+  // ── MAP NASA OVERLAYS ────────────────────────────────────
+  const mapEl=document.getElementById('map');
+
+  // Corner brackets (4 divs, no animation, cheap)
+  ['mc-tl','mc-tr','mc-bl','mc-br'].forEach(cls=>{
+    const d=document.createElement('div');d.className='map-corner '+cls;mapEl.appendChild(d);
+  });
+
+  // Scan beam (1 element, 1 animation)
+  const beam=document.createElement('div');beam.className='map-scanbeam';mapEl.appendChild(beam);
+
+  // NASA dual grid (SVG, static, zero CPU)
+  const grid=document.createElement('div');
+  grid.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:300;';
+  grid.innerHTML=`<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="ng1" width="30" height="30" patternUnits="userSpaceOnUse">
+        <path d="M30 0L0 0 0 30" fill="none" stroke="#00e5ff" stroke-width="0.3" opacity="0.07"/>
+      </pattern>
+      <pattern id="ng2" width="90" height="90" patternUnits="userSpaceOnUse">
+        <path d="M90 0L0 0 0 90" fill="none" stroke="#00e5ff" stroke-width="0.7" opacity="0.11"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#ng1)"/>
+    <rect width="100%" height="100%" fill="url(#ng2)"/>
+  </svg>`;
+  mapEl.appendChild(grid);
+
+  // Telemetry HUD (bottom center, updated by tick())
+  const tele=document.createElement('div');tele.className='map-telemetry';
+  tele.innerHTML=`
+    <div class="tele-item" id="tele-utc">UTC --:--:--</div>
+    <div class="tele-item">ISR TACTICAL v3</div>
+    <div class="tele-item" id="tele-zoom">Z:7</div>
+  `;
+  mapEl.appendChild(tele);
+  map.on('zoomend',()=>{const z=document.getElementById('tele-zoom');if(z)z.textContent='Z:'+map.getZoom();});
+
+  // ── CUSTOM PANES — zones ordered by threat level ──────────
+  // Higher zIndex = appears on top
+  map.createPane('zone-lv1').style.zIndex=200;
+  map.createPane('zone-lv2').style.zIndex=210;
+  map.createPane('zone-lv3').style.zIndex=220;
+  map.createPane('zone-lv4').style.zIndex=230;
+  map.createPane('zone-lv5').style.zIndex=240;
+  // Alert markers always on top of zones
+  map.createPane('alert-icons').style.zIndex=450;
+  map.createPane('city-alerts').style.zIndex=460;
+
+  // ── DRAW ZONES ───────────────────────────────────────────
+  ZONES.forEach(z=>{
+    const lv=Math.min(5,Math.max(1,z.r||1));
+    const glowC=rC(lv);
+    const poly=L.polygon(z.c,{
+      color:glowC,
+      fillColor:h2r(glowC,lv>=4?.18:.09),
+      weight:lv>=4?2:1,
+      fillOpacity:lv>=4?.42:.25,
+      dashArray:lv>=4?null:'5,4',
+      pane:'zone-lv'+lv,   // ← threat-level pane
+    }).addTo(map);
+    poly.on('mouseover',()=>{poly.setStyle({fillOpacity:.62,weight:2.5,color:'#fff'});poly.bringToFront();});
+    poly.on('mouseout',()=>{poly.setStyle({fillOpacity:lv>=4?.42:.25,weight:lv>=4?2:1,color:glowC});});
+    poly.on('click',()=>poly.openPopup());
+    poly.bindPopup(zpopHtml(z,lv),{maxWidth:230,className:''});
+    polyL[z.id]=poly;
+
+    // Zone label — Orbitron with glow
+    const ctr=poly.getBounds().getCenter();
+    L.marker([ctr.lat,ctr.lng],{
+      icon:L.divIcon({
+        html:`<div style="
+          color:${glowC};font-size:${lv>=4?8.5:7}px;font-weight:700;
+          font-family:'Orbitron',sans-serif;
+          text-shadow:0 0 10px ${glowC},0 0 20px ${h2r(glowC,.4)},0 0 4px rgba(0,0,0,1);
+          white-space:nowrap;direction:rtl;pointer-events:none;
+          letter-spacing:${lv>=4?.5:0}px;
+        ">${z.n}</div>`,
+        className:'',iconAnchor:[40,6]
+      }),interactive:false
+    }).addTo(map);
+
+    // Threat level indicator dot
+    L.marker([ctr.lat,ctr.lng],{
+      icon:L.divIcon({
+        html:`<div style="
+          width:6px;height:6px;border-radius:50%;
+          background:${glowC};pointer-events:none;
+          box-shadow:0 0 8px ${glowC},0 0 16px ${h2r(glowC,.5)};
+          transform:translate(-3px,8px);
+          ${lv>=4?`animation:blink-fast ${lv>=5?.5:.9}s ease-in-out infinite;`:''}
+        "></div>`,
+        className:'',iconAnchor:[0,0]
+      }),interactive:false
+    }).addTo(map);
+
+    // Pulsing ring for high-threat zones
+    if(lv>=4){
+      const ringD=L.divIcon({
+        html:`<div style="
+          width:${lv>=5?70:55}px;height:${lv>=5?70:55}px;
+          border-radius:50%;
+          border:${lv>=5?2:1.5}px dashed ${glowC};
+          box-shadow:0 0 ${lv>=5?16:10}px ${h2r(glowC,.5)},
+                     inset 0 0 ${lv>=5?16:10}px ${h2r(glowC,.1)};
+          animation:zone-pulse ${lv>=5?'.65s':'1.1s'} ease-in-out infinite;
+          pointer-events:none;transform:translate(-50%,-50%);
+        "></div>`,
+        className:'',iconAnchor:[0,0]
+      });
+      L.marker([ctr.lat,ctr.lng],{icon:ringD,interactive:false}).addTo(map);
+
+      // Second ring for level 5
+      if(lv>=5){
+        const ring2=L.divIcon({
+          html:`<div style="
+            width:100px;height:100px;border-radius:50%;
+            border:1px solid ${h2r(glowC,.3)};
+            animation:zone-pulse .65s ease-in-out infinite .3s;
+            pointer-events:none;transform:translate(-50%,-50%);
+          "></div>`,
+          className:'',iconAnchor:[0,0]
+        });
+        L.marker([ctr.lat,ctr.lng],{icon:ring2,interactive:false}).addTo(map);
+      }
+    }
+  });
+
+  // ── RADAR SWEEP — single layer, 5s (lighter on iPad) ────
+  const radarEl=L.divIcon({
+    html:`<div style="width:180px;height:180px;border-radius:50%;
+      background:conic-gradient(from 0deg,transparent 0deg,rgba(0,229,255,.07) 45deg,transparent 45deg);
+      animation:radar-spin 5s linear infinite;
+      border:1px solid rgba(0,229,255,.05);
+      pointer-events:none;transform:translate(-50%,-50%);"></div>`,
+    className:'',iconAnchor:[0,0]
+  });
+  L.marker([31.5,35.2],{icon:radarEl,interactive:false,zIndexOffset:-200}).addTo(map);
+
+  // ── ISRAEL BORDER OUTLINE ────────────────────────────────
+  // Simplified border for visual effect
+  const borderPts=[[33.35,35.0],[33.35,35.85],[33.1,36.05],[32.7,36.05],[32.7,35.6],[32.0,35.6],[31.55,35.6],[31.0,35.5],[30.75,35.1],[29.5,35.0],[29.45,34.9],[30.0,34.7],[31.0,34.5],[31.5,34.35],[31.8,34.28],[32.1,34.77],[32.5,34.82],[33.05,34.95],[33.35,35.0]];
+  L.polyline(borderPts,{
+    color:'rgba(0,229,255,0.18)',weight:1.5,dashArray:'2,6',
+    lineJoin:'round',lineCap:'round'
+  }).addTo(map);
+
+  // ── COORDINATE EVENTS ────────────────────────────────────
+  map.on('mousemove',e=>{
+    document.getElementById('msCoords').textContent=
+      `${e.latlng.lat.toFixed(4)}°N  ${e.latlng.lng.toFixed(4)}°E`;
+  });
+
+  // ── FIT BOUNDS ────────────────────────────────────────────
+  map.whenReady(()=>{
+    setTimeout(()=>{map.invalidateSize();resetMap();},200);
+    setTimeout(()=>{map.invalidateSize();},600);
+    setTimeout(()=>{map.invalidateSize();},1200);
+  });
+  window.addEventListener('resize',()=>{setTimeout(()=>{map.invalidateSize();},200);});
+  // Force tile load
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>map.invalidateSize(),200);});
+}
+
+function zpopHtml(z,lv){
+  const c=LVL[lv].c,sc=lv*20;
+  return`<div class="zpop" style="border-color:${c}">
+    <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:3px">${z.n}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:20px;color:${c};font-weight:900;text-shadow:0 0 10px ${c}">${sc}</div>
+      <div style="font-size:8px;color:${c};font-family:'Orbitron',sans-serif">LVL ${lv} — ${LVL[lv].n}</div>
+    </div>
+    <div style="display:flex;gap:2px;margin-bottom:5px">${[1,2,3,4,5].map(i=>`<div style="flex:1;height:4px;border-radius:2px;background:${i<=lv?c:'rgba(255,255,255,.07)'}"></div>`).join('')}</div>
+    <div style="font-size:7.5px;color:#3a6070;line-height:1.8">${(z.cities||[]).join(' · ')}</div>
+    ${z.activeAlert?`<div style="margin-top:5px;padding:3px 6px;background:rgba(255,0,80,.15);border:1px solid rgba(255,0,80,.4);border-radius:3px;font-size:8px;color:#ff0050;font-weight:700">🚨 ${z.activeAlert}</div>`:''}
+  </div>`;
+}
+
+function updateZone(id,risk,alert=''){
+  const p=polyL[id];if(!p)return;
+  const lv=Math.min(5,Math.max(1,Math.round(risk)));const c=rC(lv);
+  p.setStyle({color:c,fillColor:h2r(c,lv>=4?.22:.12),fillOpacity:lv>=4?.45:.28,dashArray:lv>=4?null:'4,4',weight:lv>=4?2:1});
+  const z=ZONES.find(x=>x.id===id);if(z){z.r=lv;z.activeAlert=alert;p.setPopupContent(zpopHtml(z,lv));}
+  // Re-add to correct pane for proper z-ordering
+  if(map.hasLayer(p)){
+    map.removeLayer(p);
+    p.options.pane='zone-lv'+lv;
+    p.addTo(map);
+  }
+  if(lv>=4&&alert)p.openPopup();
+  // Re-sort all zones by threat level
+  sortZonesByThreat();
+}
+
+// Sort zones: low threat behind, high threat on top
+function sortZonesByThreat(){
+  // Leaflet panes handle this automatically when zones are in separate panes
+  // Just ensure high-threat zones are visible on top
+  const sorted=[...Object.values(polyL)].sort((a,b)=>{
+    const za=ZONES.find(z=>polyL[z.id]===a);
+    const zb=ZONES.find(z=>polyL[z.id]===b);
+    return (za?.r||1)-(zb?.r||1);
+  });
+  sorted.forEach(p=>{if(map.hasLayer(p))p.bringToFront();});
+}
+
+function setMode(m){
+  ['n','s','d'].forEach(x=>{const b=document.getElementById('mb-'+x);if(b)b.classList.toggle('on',x===m);});
+  const mp=document.getElementById('map');
+  mp.classList.remove('mode-night','mode-sat','mode-day');
+  mp.classList.add('mode-'+m);
+  [tileN,tileS,tileD].forEach(l=>{try{map.removeLayer(l);}catch{}});
+  if(m==='night')tileN.addTo(map);else if(m==='sat')tileS.addTo(map);else tileD.addTo(map);
+  // Re-sort zones by threat level after mode change
+  sortZonesByThreat();
+}
+function toggleZones(){showZones=!showZones;document.getElementById('mb-z').classList.toggle('on',showZones);Object.values(polyL).forEach(p=>showZones?p.addTo(map):map.removeLayer(p));}
+function resetMap(){map.fitBounds([[29.45,34.27],[33.35,35.9]],{padding:[10,10]});}
+
+// ── NASA ICON CONFIG ─────────────────────────────────────────
+const ICFG={
+  critical:{e:'💥',bg:'rgba(255,0,80,.9)',   gl:'#ff0050',sz:34,ms:'.5s'},
+  high:    {e:'🚀',bg:'rgba(255,23,68,.88)',  gl:'#ff1744',sz:30,ms:'.8s'},
+  warning: {e:'⚠️',bg:'rgba(255,109,0,.88)', gl:'#ff6d00',sz:26,ms:'1.2s'},
+  medium:  {e:'📡',bg:'rgba(255,214,0,.8)',   gl:'#ffd600',sz:22,ms:'2s'},
+  low:     {e:'ℹ️',bg:'rgba(0,150,180,.7)',  gl:'#00e5ff',sz:18,ms:'none'},
+};
+const SEMJ={oref:'🚨',idf:'⚔️',toi:'📰',jpost:'📰',bbc:'📺',ynet:'📰',alj:'📡',world:'🌍',mda:'⚕️',intel_tg:'🕵️',arabic_tg:'🔴'};
+
+function addMarker(a){
+  const regs=a.affectedRegions||a.reg||[];
+  if(!regs.length)return;
+  const z=ZONES.find(x=>regs.includes(x.id));if(!z)return;
+  const p=polyL[z.id];if(!p)return;
+  const ctr=p.getBounds().getCenter();
+  const sev=a.severity||a.sev||'medium';
+  const cfg=ICFG[sev]||ICFG.medium;
+  const em=SEMJ[a.source]||cfg.e;
+  const pa=cfg.ms!=='none'?`animation:mpulse ${cfg.ms} ease-in-out infinite;`:'';
+  const title=(a.title||'').slice(0,65);
+  const body=(a.body||'').replace(/<[^>]+>/g,'').slice(0,110);
+  const ts=new Date(a.timestamp||a.ts||Date.now()).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+  const ew=a.earlyWarning||a.ew;
+  // Slight random offset so icons don't stack
+  const jit=0.04;
+  const lat=ctr.lat+(Math.random()-.5)*jit,lng=ctr.lng+(Math.random()-.5)*jit;
+
+  const icon=L.divIcon({
+    html:`<div style="position:relative;width:${cfg.sz}px;height:${cfg.sz}px;transform:translate(-50%,-50%);cursor:pointer;">
+      <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid ${cfg.gl};box-shadow:0 0 10px ${cfg.gl},0 0 22px ${h2r(cfg.gl,.3)};${pa}"></div>
+      <div style="width:100%;height:100%;border-radius:50%;background:${cfg.bg};border:1.5px solid ${cfg.gl};display:flex;align-items:center;justify-content:center;font-size:${Math.round(cfg.sz*.52)}px;box-shadow:0 2px 12px rgba(0,0,0,.75);${pa}">${em}</div>
+      <div style="position:absolute;top:100%;left:50%;transform:translateX(-50%);width:1.5px;height:9px;background:linear-gradient(${cfg.gl},transparent);"></div>
+      ${ew?`<div style="position:absolute;top:-5px;right:-5px;background:#ff6d00;color:#fff;font-size:5px;font-weight:800;border-radius:3px;padding:1px 3px;font-family:'Share Tech Mono',monospace;box-shadow:0 0 6px #ff6d00;letter-spacing:.5px;line-height:1.2">EW</div>`:''}
+    </div>`,
+    className:'',iconAnchor:[0,0],iconSize:[cfg.sz,cfg.sz],
+  });
+
+  const pop=`<div style="direction:rtl;font-family:'Heebo',sans-serif;background:rgba(0,3,8,.97);color:#fff;border:1.5px solid ${cfg.gl};border-radius:8px;padding:10px 12px;min-width:185px;max-width:235px;box-shadow:0 0 20px ${h2r(cfg.gl,.25)};">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+      <div style="font-size:18px">${em}</div>
+      <div>
+        <div style="font-size:8px;color:${cfg.gl};font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:.5px">${sev.toUpperCase()}${ew?' ⚡EW':''} · ${ts}</div>
+        <div style="font-size:7px;color:rgba(255,255,255,.4);font-family:'Share Tech Mono',monospace">${z.n} | ${a.source||'intel'}</div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:4px">${title}</div>
+    <div style="font-size:8.5px;color:#7ab4c8;line-height:1.55;margin-bottom:4px">${body}</div>
+    <div style="display:flex;gap:2px">${[1,2,3,4,5].map(i=>`<div style="flex:1;height:3px;border-radius:2px;background:${i<={critical:5,high:4,warning:3,medium:2,low:1}[sev]?cfg.gl:'rgba(255,255,255,.06)'}"></div>`).join('')}</div>
+    ${a.link?`<div style="margin-top:5px"><a href="${a.link}" target="_blank" style="color:${cfg.gl};font-size:8px;text-decoration:none;font-family:'Share Tech Mono',monospace">↗ פתח מקור</a></div>`:''}
+  </div>`;
+
+  const mk=L.marker([lat,lng],{icon,pane:'alert-icons',zIndexOffset:{critical:900,high:700,warning:500}[sev]||300});
+  mk.bindPopup(pop,{maxWidth:250,className:'',offset:[0,-8]});
+  mk.addTo(map);
+  mkrL.push(mk);
+  if(mkrL.length>80){try{map.removeLayer(mkrL.shift());}catch{}}
+  document.getElementById('msAlerts').textContent=mkrL.length;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function setReadiness(lv,sc,reason){
+  lv=Math.min(5,Math.max(1,lv||1));const c=LVL[lv].c;
+  for(let i=1;i<=5;i++){document.getElementById('rb'+i).className='rbar'+(i<=lv?` l${i}`:' ');}
+  document.getElementById('rscore').textContent=sc||lv*20;document.getElementById('rscore').style.color=c;
+  document.getElementById('rlabel').textContent=LVL[lv].n;document.getElementById('rlabel').style.color=c;
+  if(lv>prevLevel&&prevLevel>0){showFlash(`⚠️ כוננות ${lv}/5: ${LVL[lv].n}`,reason||'',lv>=4);pushNotif(`⚠️ כוננות ${lv}/5`,LVL[lv].n);}
+  prevLevel=lv;
+}
+
+function renderThreats(d){
+  const el=document.getElementById('threatRow');
+  const gs=id=>{if(Array.isArray(d)){const f=d.find(x=>x.id===id);return f?.score||0;}return d[id]||0;};
+  el.innerHTML=THREATS.map(t=>{const s=gs(t.id);return`<div class="th-item"><div class="th-f">${t.f}</div><div class="th-b"><div class="th-bf" style="width:${s}%;background:${t.c}"></div></div><div class="th-s" style="color:${t.c}">${s}</div></div>`;}).join('');
+}
+
+function ingestAlert(a){
+  if(seenIDs.has(a.id))return;seenIDs.add(a.id);
+  allAlerts.unshift(a);if(allAlerts.length>400)allAlerts=allAlerts.slice(0,400);
+  document.getElementById('msAlerts').textContent=allAlerts.length;
+  renderAlerts();renderTicker();addMarker(a);
+  if(a.earlyWarning||a.severity==='critical'){showFlash(a.title,a.body||'',a.severity==='critical');pushNotif(`⚡ ${a.title}`,a.body||'');}
+}
+
+function renderAlerts(){
+  const el=document.getElementById('tc-alerts');
+  if(!allAlerts.length){el.innerHTML='<div style="padding:24px;text-align:center;opacity:.3;font-size:9px;font-family:var(--mono)">NO DATA</div>';return;}
+  const sorted=[...allAlerts].sort((a,b)=>{if(a.earlyWarning&&!b.earlyWarning)return -1;if(!a.earlyWarning&&b.earlyWarning)return 1;const o={critical:0,high:1,warning:2,medium:3,low:4};return(o[a.severity]??5)-(o[b.severity]??5)||b.timestamp-a.timestamp;});
+  el.innerHTML=sorted.map(a=>{const ss=SRCS.find(s=>s.id===a.source)||{lb:a.source,c:'#446',bc:'rgba(100,100,100,.06)'};const t=new Date(a.timestamp).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});return`<div class="ac ${a.severity?.charAt(0)||'l'}"><div class="ac-top"><div style="display:flex;gap:3px;flex-wrap:wrap">${a.earlyWarning?'<span class="ew-tag">⚡ EW</span>':''}<span class="src-tag" style="color:${ss.c};border-color:${ss.c}44;background:${ss.bc}">${ss.lb}</span></div><span class="ac-ts">${t}</span></div><div class="ac-title">${a.title}</div><div class="ac-body">${(a.body||'').slice(0,110)}</div></div>`;}).join('');
+}
+
+function renderZones(){
+  document.getElementById('tc-zones').innerHTML=ZONES.map(z=>{const lv=Math.min(5,Math.max(1,Math.round(z.r||1)));const c=LVL[lv].c,sc=lv*20;return`<div class="zi" onclick="map.flyTo([${z.c[0][0]},${z.c[0][1]}],9,{duration:1.2})"><div class="zi-bar" style="background:${c}"></div><div style="flex:1;min-width:0"><div class="zi-name">${z.n}</div><div class="zi-sub">${(z.cities||[]).slice(0,2).join(' · ')}</div><div class="zi-prog"><div class="zi-pf" style="width:${sc}%;background:${c}"></div></div></div><div class="zi-s" style="color:${c}">${sc}</div></div>`;}).join('');
+}
+
+function renderDiplo(){
+  const d=allDiplo.length?allDiplo:DIPLO_DEF;
+  document.getElementById('tc-diplo').innerHTML=d.map(c=>`<div class="dip"><div class="dip-h"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:16px">${c.f}</span><span style="font-size:10px;font-weight:700;color:#fff">${c.n}</span></div><span class="dip-rel" style="color:${c.rc||'#446'};border-color:${(c.rc||'#446')}33;background:${(c.rc||'#446')}11">${c.r||c.rel}</span></div><div class="dip-st">${c.st||''}</div><div style="display:flex;align-items:center;gap:5px;font-size:8px"><span style="color:${c.tc||'#446'};font-size:12px">${c.ti||'→'}</span><span style="color:${c.tc||'#446'}">${{up:'הידרדרות',down:'שיפור',stable:'יציב'}[c.t||c.trend]||'יציב'}</span></div>${(c.al||c.alert)?`<div class="dip-al">⚠️ ${c.al||c.alert}</div>`:''}</div>`).join('');
+}
+
+function renderSrcChips(counts={}){
+  document.getElementById('srcChips').innerHTML=SRCS.map(s=>`<div class="schip" id="sc-${s.id}" style="color:${s.c};background:${s.bc};border-color:${s.c}33"><span>${s.lb}</span> <span style="opacity:.4;font-family:var(--mono);font-size:6px">${counts[s.id]||0}</span></div>`).join('');
+}
+
+function renderTicker(){
+  const items=allAlerts.filter(a=>a.earlyWarning||a.severity==='critical'||a.severity==='high').slice(0,6);
+  if(!items.length)return;
+  document.getElementById('ticker').classList.add('show');
+  document.getElementById('tkTxt').textContent=items.map(a=>`${a.earlyWarning?'⚡':''} ${a.title}   ◆   `).join('');
+}
+
+function applyAI(p){
+  if(p.readinessLevel)setReadiness(p.readinessLevel,p.readinessScore,p.readinessReason);
+  if(p.threats)renderThreats(Array.isArray(p.threats)?p.threats:THREATS.map(t=>({id:t.id,score:p.threats[t.id]||0})));
+  if(p.regions?.length)p.regions.forEach(r=>updateZone(r.id,r.risk));
+  if(p.diplomatic?.length){allDiplo=p.diplomatic;renderDiplo();}
+  if(p.sourceCounts)renderSrcChips(p.sourceCounts);
+  document.getElementById('spAI').className='sp-dot ok';
+  document.getElementById('spAIL').textContent='AI ✓';
+  renderZones();
+}
+
+function rtab(id,el){
+  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
+  document.getElementById('tc-'+id).classList.add('on');if(el)el.classList.add('on');
+}
+
+// ═══════════════════════════════════════════════════════════════
+
+// ── LIVE DATA HELPERS (no AI key required) ───────────────────
+async function pollOrefViaServer(){
+  try{
+    const r=await fetch('/proxy/oref',{signal:AbortSignal.timeout(6000)});
+    const txt=await r.text();
+    if(txt&&txt.trim()){
+      const d=JSON.parse(txt);
+      if(d?.data?.length>0){showTzofar(d.title,d.data,d.desc||'',d.cat||1);}
+      else{clearTzofar();}
+    }
+    setDot('Oref','ok','OREF ✓');
+  }catch(e){setDot('Oref','warn','OREF⚠');}
+}
+async function pollRSSViaServer(){
+  try{
+    const r=await fetch('/api/alerts',{signal:AbortSignal.timeout(6000)});
+    const items=await r.json();
+    items.forEach(a=>{if(!seenIDs.has(a.id))ingestAlert(a);});
+    setDot('Rss','ok',`RSS ✓ ${items.length}`);
+  }catch(e){setDot('Rss','warn','RSS⚠');}
+}
+function autoScore(){
+  const now=Date.now();const r1h=allAlerts.filter(a=>now-a.timestamp<3600000);
+  let s=15;r1h.forEach(a=>{s+=({critical:15,high:8,warning:4,medium:1})[a.severity]||0;if(a.earlyWarning)s+=6;});
+  s=Math.min(100,s);const lv=s>=80?5:s>=60?4:s>=40?3:s>=22?2:1;
+  setReadiness(lv,s,'ניתוח אוטומטי — OREF + RSS + צופר');
+}
+
+// AI SCAN + DEMO MODE
+// ═══════════════════════════════════════════════════════════════
+async function aiScan(){
+  if(isScanning)return;isScanning=true;
+  const btn=document.getElementById('scanBtn');btn.disabled=true;btn.textContent='⏳';
+  document.querySelectorAll('.schip').forEach(e=>e.classList.add('search'));
+  setP(5);
+
+  const apiKey=window._EWS_KEY||localStorage.getItem('ews_api_key')||'';
+  // ── NO DEMO MODE — live data only ─────────────────────────
+  if(!apiKey){
+    // Without AI key: still poll OREF + RSS via server
+    await pollOrefViaServer();
+    await pollRSSViaServer();
+    autoScore();
+    done();return;
+  }
+
+  // ── REAL API SCAN ──────────────────────────────────────────
+  document.getElementById('nextLbl').textContent='⚡ סורק...';
+  try{
+    setP(12);
+    const useDeep=scanN%5===0;scanN++;
+    // Run OREF + RSS in parallel for speed
+    await Promise.all([pollOrefViaServer(), pollRSSViaServer()]);
+    setP(40);
+    // Fast AI analysis of already-loaded data (no web_search = 3-5s not 30s)
+    const ctx=allAlerts.slice(0,12).map(a=>`[${a.source}][${a.severity}] ${a.title}`).join('\n');
+    const res=await fetch(CLAUDE_API,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({
+      model:CLAUDE_FAST,max_tokens:800,
+      system:'Israel security AI. JSON only, no markdown: {"readinessLevel":1-5,"readinessScore":10-100,"readinessReason":"Hebrew max 30 chars","threats":[{"id":"iran|hamas|hizb|houthi|syria|new","score":0-100}],"regions":[{"id":"zone_id","risk":1-5}]}',
+      messages:[{role:'user',content:`${new Date().toLocaleString('he-IL')}\nאירועים:\n${ctx}\nJSON בלבד.`}]
+    })});
+    setP(72);if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();setP(88);
+    let raw='';for(const b of(data.content||[])){if(b.type==='text')raw+=b.text;}
+    raw=raw.trim().replace(/^```json?\n?/,'').replace(/\n?```$/,'');
+    const p=JSON.parse(raw);setP(95);
+    applyAI(p);
+    (p.alerts||[]).forEach((a,i)=>{a.timestamp=a.timestamp||(Date.now()-i*8000);ingestAlert(a);});
+    setP(100);setTimeout(()=>setP(0),400);
+  }catch(err){
+    console.error('[SCAN]',err);setP(0);
+    document.getElementById('tc-alerts').innerHTML=`<div style="margin:8px;padding:9px;background:rgba(255,0,80,.07);border:1px solid rgba(255,0,80,.2);border-radius:4px;font-size:9px;color:#ff8888;font-family:var(--mono)">⚠️ ${err.message}</div>`;
+  }finally{done();}
+
+  function done(){isScanning=false;btn.disabled=false;btn.textContent='⚡';document.querySelectorAll('.schip').forEach(e=>e.classList.remove('search'));}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════
+function openCfg(){
+  document.getElementById('cfgKey').value=localStorage.getItem('ews_api_key')||'';
+  document.getElementById('cfgTG').value=localStorage.getItem('ews_tg_token')||'';
+  document.getElementById('cfgStatus').style.display='none';
+  document.getElementById('cfgModal').classList.add('show');
+}
+function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
+function saveCfg(){
+  const k=document.getElementById('cfgKey').value.trim();
+  const t=document.getElementById('cfgTG').value.trim();
+  if(!k){showCfgSt('הכנס API Key','#ff4444');return;}
+  localStorage.setItem('ews_api_key',k);
+  if(t)localStorage.setItem('ews_tg_token',t);
+  window._EWS_KEY=k;
+  document.getElementById('cfgBtn').style.color='#00ff9d';
+  document.getElementById('cfgBtn').style.borderColor='rgba(0,255,157,.4)';
+  showCfgSt('✅ נשמר! מפעיל סריקה...','#00ff9d');
+  setTimeout(()=>{closeCfg();aiScan();toggleAuto();},1200);
+}
+async function testCfg(){
+  const k=document.getElementById('cfgKey').value.trim();
+  if(!k){showCfgSt('הכנס API Key','#ff8800');return;}
+  showCfgSt('🔄 בודק חיבור...','#00e5ff');
+  try{
+    const r=await fetch(CLAUDE_API,{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:5,messages:[{role:'user',content:'hi'}]})});
+    showCfgSt(r.status===200||r.status===400?'✅ מחובר! המפתח עובד':'❌ סטטוס: '+r.status,r.status===200||r.status===400?'#00ff9d':'#ff4444');
+  }catch(e){showCfgSt('❌ '+e.message.slice(0,40),'#ff4444');}
+}
+function showCfgSt(msg,color){const el=document.getElementById('cfgStatus');el.style.display='block';el.style.background=color+'18';el.style.border='1px solid '+color+'44';el.style.color=color;el.textContent=msg;}
+document.getElementById('cfgModal').addEventListener('click',e=>{if(e.target===document.getElementById('cfgModal'))closeCfg();});
+
+// Auto-load saved key
+(function(){const k=localStorage.getItem('ews_api_key');if(k){window._EWS_KEY=k;document.getElementById('cfgBtn').style.color='#00ff9d';}})();
+
+// ═══════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════
+let bd=0;
+function blog(txt,ok=false){bd+=110;setTimeout(()=>{const el=document.createElement('div');el.className='boot-line';el.style.animationDelay='0s';el.innerHTML=`<span style="color:${ok?'#00ff9d':'#00e5ff'}">${ok?'✓':'>_'}</span> ${txt}`;document.getElementById('bootLog').appendChild(el);},bd);}
+
+window.addEventListener('load',async()=>{
+  const boot=document.getElementById('boot');
+
+  // ── STEP 1: Map — sync ───────────────────────────────────
+  document.getElementById('bootTxt').textContent='INITIALIZING MAP...';
+  initMap();
+  renderZones();
+  renderDiplo();
+  renderSrcChips();
+  renderThreats([{id:'iran',score:0},{id:'hamas',score:0},{id:'hizb',score:0},{id:'houthi',score:0},{id:'syria',score:0},{id:'new',score:0}]);
+  setReadiness(1,15,'מאתחל...');
+  blog('31 אזורי OREF על המפה ✓',true);
+
+  // ── STEP 2: WebSocket (push מיידי מהשרת) ────────────────
+  if(IS_SERVER){
+    connectWS();
+    blog('WebSocket — חיבור לשרת ✓',true);
+  }
+
+  // ── STEP 3: Close boot IMMEDIATELY ──────────────────────
+  boot.classList.add('done');
+  renderAlerts();
+
+  // ── STEP 4: Load data in background (non-blocking) ───────
+  setInterval(pollOref,OREF_MS);
+  if(IS_SERVER)setInterval(pollRSSViaServer,60000);
+
+  // Non-blocking background load
+  Promise.all([
+    pollOref(),
+    IS_SERVER ? pollRSSViaServer() : Promise.resolve()
+  ]).then(()=>{
+    autoScore();
+    renderAlerts();
+    renderTicker();
+    blog('OREF + RSS טעונים ✓',true);
+  });
+
+  // Network check
+  fetch('https://1.1.1.1',{mode:'no-cors',cache:'no-store'})
+    .then(()=>{const e=document.getElementById('spNet');if(e)e.className='sp-dot ok';const l=document.getElementById('spNetL');if(l)l.textContent='NET ✓';})
+    .catch(()=>{const e=document.getElementById('spNet');if(e)e.className='sp-dot err';});
+
+  // AI scan in background — don't block
+  setTimeout(()=>aiScan(),1000);
+  setTimeout(()=>{if(!autoOn)toggleAuto();},2000);
+
+  // ── STEP 8: Auto-refresh OREF history ────────────────────
+  if(IS_SERVER){
+    const loadHist=async()=>{
+      try{
+        const r=await fetch('/proxy/oref-history',{signal:AbortSignal.timeout(8000)});
+        const d=await r.json();
+        if(Array.isArray(d)&&d.length){
+          const el=document.getElementById('tc-oref');
+          if(el)el.innerHTML=d.slice(0,10).map(h=>`
+            <div style="padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.025)">
+              <div style="font-size:9px;color:var(--accent);font-family:var(--mono)">${(h.alertDate||'').slice(0,16)}</div>
+              <div style="font-size:11px;font-weight:700;color:#fff;margin:2px 0">${h.title||''}</div>
+              <div style="font-size:9px;color:var(--text)">${(h.data||'').slice(0,80)}</div>
+            </div>`).join('');
+        }
+      }catch{}
+    };
+    loadHist();
+    setInterval(loadHist,120000);
+  }
+
+  // ── STEP 9: Reconnect WS if lost ─────────────────────────
+  setInterval(()=>{if(IS_SERVER&&!ws)connectWS();},5000);
+});
+</script>
+</body>
 </html>
