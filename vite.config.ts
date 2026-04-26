@@ -5,10 +5,6 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   base: "/warwatch-guardian-hub/",
-  server: {
-    host: "::",
-    port: 8080,
-  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
@@ -17,6 +13,5 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
 }));
