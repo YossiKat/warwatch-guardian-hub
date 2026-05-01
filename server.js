@@ -677,7 +677,7 @@ async function pollOref() {
       return;
     }
 
-    const d = JSON.parse(body);
+    const d = JSON.parse(body.replace(/^\uFEFF/,""));
     if (d?.data?.length > 0) {
       const key = `${d.title}:${d.data.slice(0, 6).join(',')}`;
       if (key !== orefActive?.key) {
